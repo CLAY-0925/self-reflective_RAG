@@ -8,9 +8,11 @@ This code repository contains the dataset for the intent recognition training an
 ```
 self-reflective_RAG/
 │
-├── Medical_HAI/
-│   ├── chatchat
-│   ├── quick_start.md
+├── backend/
+│   ├── README.md
+│   └── ... (other files or subdirectories)
+├── frontend/
+│   ├── README.md
 │   └── ... (other files or subdirectories)
 ├── dataset/
 │   ├── README.md

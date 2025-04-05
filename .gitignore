@@ -22,7 +22,6 @@ var/
 .pytest_cache/
 venv/
 .venv/
-.env
 *.log
 
 # Node.js / React
@@ -56,6 +55,7 @@ frontend/.env.production.local
 jhc
 jhc.pub
 .envme
+token
 
 # 杂项
 .git/

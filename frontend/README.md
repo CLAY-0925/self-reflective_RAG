@@ -1,4 +1,4 @@
-# 项目名称 (请替换为您项目的实际名称)
+# MedicalChatbot Frontend
 
 这是一个基于 React、TypeScript 和 Material UI 构建的智能医疗对话前端应用。它允许用户与 AI 助手进行对话，获取医疗建议，并管理病例信息。
 

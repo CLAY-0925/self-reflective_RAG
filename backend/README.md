@@ -1,4 +1,4 @@
-# 医学知识聊天机器人
+# MedicalChatbot Backend
 
 这是一个基于Python FastAPI的医学知识聊天机器人后端项目，使用通义千问API提供智能对话能力，并集成了多个专业Agent来处理用户的医疗咨询。
 

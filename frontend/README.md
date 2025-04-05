@@ -35,6 +35,7 @@ The Medical Chatbot is a web application based on React and TypeScript, providin
 
 ```bash
 # Using npm
+cd frontend
 npm install
 
 # Or using yarn

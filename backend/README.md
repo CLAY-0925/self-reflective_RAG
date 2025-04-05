@@ -56,10 +56,9 @@ medical_bot/
 
 ### Environment Configuration
 
-1. Clone the project:
+1.  Entry the project:
 
 ```bash
-git clone https://github.com/CLAY-0925/self-reflective_RAG.git
 cd backend
 ```
 

@@ -56,10 +56,9 @@ medical_bot/
 
 ### 环境配置
 
-1. 克隆项目:
+1. 进入项目:
 
 ```bash
-git clone https://github.com/CLAY-0925/self-reflective_RAG.git
 cd backend
 ```
 

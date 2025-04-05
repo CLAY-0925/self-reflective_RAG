@@ -35,6 +35,7 @@
 
 ```bash
 # 使用npm
+cd frontend
 npm install
 
 # 或使用yarn

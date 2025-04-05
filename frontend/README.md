@@ -1,75 +1,162 @@
 # MedicalChatbot Frontend
 
-这是一个基于 React、TypeScript 和 Material UI 构建的智能医疗对话前端应用。它允许用户与 AI 助手进行对话，获取医疗建议，并管理病例信息。
+This is an intelligent medical conversation frontend application built with React, TypeScript, and Material UI. It allows users to converse with an AI assistant, get medical advice, and manage case information.
 
-## 主要特性
+## Key Features
 
-*   实时聊天界面
-*   会话管理 (创建、选择、删除)
-*   支持 WebSocket 和 HTTP API 通信
-*   医疗病例信息展示 (诊疗进度、患者信息、待确认信息)
-*   相关问题建议
-*   可配置的功能开关 (例如：病例总结、联网搜索)
-*   明/暗主题切换
+* Real-time chat interface
+* Session management (create, select, delete)
+* Support for WebSocket and HTTP API communication
+* Medical case information display (treatment progress, patient information, information to be confirmed)
+* Related question suggestions
+* Configurable feature toggles (e.g., case summary, web search)
+* Light/dark theme switching
 
-## 环境要求
+## Requirements
 
-*   [Node.js](https://nodejs.org/) (建议使用 v18.x 或更高版本)
-*   [npm](https://www.npmjs.com/) 或 [yarn](https://yarnpkg.com/)
+* [Node.js](https://nodejs.org/) (v18.x or higher recommended)
+* [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
 
-## 安装步骤
+## Installation Steps
 
-1.  **克隆仓库:**
-    ```bash
-    git clone https://github.com/CLAY-0925/medical_chatbot.git
-    cd <project-directory-name>    # 替换为项目目录名
-    ```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/medical_chatbot.git
+   cd medical_chatbot
+   ```
 
-2.  **安装依赖:**
-    ```bash
-    npm install --legacy-peer-deps # 忽略一些package未更新，而识别的依赖冲突，这些冲突并不会导致问题
-    # 或者
-    yarn install
-    ```
+2. **Install dependencies:**
+   ```bash
+   npm install --legacy-peer-deps # Ignore dependency conflicts from packages that haven't been updated
+   # or
+   yarn install
+   ```
 
-## 配置
+## Configuration
 
-应用需要连接到后端 API。请确保后端服务正在运行。
+The application needs to connect to a backend API. Make sure the backend service is running.
 
-默认情况下，前端会尝试连接到 `http://localhost:8000/api`。如果您的后端 API 地址不同，您需要修改配置文件：
+By default, the frontend will try to connect to `http://localhost:8000/api`. If your backend API address is different, you need to modify the configuration file:
 
-*   打开 `src/utils/config.ts` 文件。
-*   找到 `config.apiBaseUrl` 变量。
-*   将其值修改为您的实际后端 API 地址。
+* Open the `src/utils/config.ts` file.
+* Find the `config.apiBaseUrl` variable.
+* Change its value to your actual backend API address.
 
 ```typescript
 // src/utils/config.ts
 export const config = {
-  // ... 其他配置
-  apiBaseUrl: process.env.REACT_APP_API_BASE_URL || 'http://your-backend-api-url', // 修改这里
-  // ... 其他配置
+  // ... other configurations
+  apiBaseUrl: process.env.REACT_APP_API_BASE_URL || 'http://your-backend-api-url', // Modify this
+  // ... other configurations
 };
 ```
 
-或者，您可以通过设置环境变量 `REACT_APP_API_BASE_URL` 来配置 API 地址，这在部署时更常用。
+Alternatively, you can configure the API address by setting the environment variable `REACT_APP_API_BASE_URL`, which is more commonly used in deployments.
 
-## 启动项目
+## Starting the Project
 
-1.  **确保后端服务已启动并运行在配置的地址上。**
+1. **Make sure the backend service is started and running at the configured address.**
 
-2.  **启动前端开发服务器:**
-    ```bash
-    npm start
-    # 或者
-    yarn start
-    ```
+2. **Start the frontend development server:**
+   ```bash
+   npm start
+   # or
+   yarn start
+   ```
 
-3.  在浏览器中打开 `http://localhost:3000` (或者您终端提示的其他地址)。
+3. Open `http://localhost:3000` in your browser (or another address as indicated by your terminal).
 
-## 贡献
+## Project Structure
 
-欢迎提交 Pull Requests 或 Issues！
+```
+frontend/
+├── public/                    # Static files
+├── src/                       # Source code
+│   ├── components/            # UI components
+│   │   ├── Chat/              # Chat-related components
+│   │   ├── Layout/            # Layout components
+│   │   ├── MedicalRecord/     # Medical record components
+│   │   └── UI/                # General UI components
+│   ├── contexts/              # React contexts
+│   ├── hooks/                 # Custom React hooks
+│   ├── models/                # TypeScript interfaces/types
+│   ├── services/              # API services
+│   ├── stores/                # State management
+│   ├── utils/                 # Utility functions
+│   ├── App.tsx                # Main App component
+│   └── index.tsx              # Application entry point
+├── package.json               # Dependencies and scripts
+└── tsconfig.json              # TypeScript configuration
+```
 
-## 许可证
+## Features in Detail
 
-(可选) 请在此处添加您的项目许可证信息，例如 MIT、Apache 2.0 等。
+### Real-time Chat
+
+The chat interface supports:
+- WebSocket connection for real-time communication
+- Streaming responses from the backend
+- Markdown rendering for formatted responses
+- Code syntax highlighting
+- Message status indicators
+
+### Medical Record Management
+
+The application automatically:
+- Extracts and displays patient information from conversations
+- Shows treatment progress
+- Highlights information that needs confirmation
+- Updates the medical record in real-time as the conversation progresses
+
+### Session Management
+
+Users can:
+- Create new chat sessions
+- Switch between existing sessions
+- Delete sessions
+- View session history
+
+### UI/UX Features
+
+- Responsive design for desktop and mobile
+- Accessibility features
+- Light and dark theme support
+- Progress indicators during API calls
+- Error handling with user-friendly messages
+
+## Technologies Used
+
+- **React**: UI library
+- **TypeScript**: Type-safe JavaScript
+- **Material UI**: Component library
+- **React Query**: Data fetching and caching
+- **WebSocket**: Real-time communication
+- **Marked**: Markdown parsing
+- **Highlight.js**: Code syntax highlighting
+
+## Development
+
+For development purposes:
+
+1. **Running in development mode:**
+   ```bash
+   npm start
+   ```
+
+2. **Building for production:**
+   ```bash
+   npm run build
+   ```
+
+3. **Running tests:**
+   ```bash
+   npm test
+   ```
+
+## Contributing
+
+Pull requests and issues are welcome!
+
+## License
+
+(Optional) Add your project license information here, such as MIT, Apache 2.0, etc. 

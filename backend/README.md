@@ -59,8 +59,8 @@ medical_bot/
 1. Clone the project:
 
 ```bash
-git clone <repository address>
-cd medical_bot
+git clone https://github.com/CLAY-0925/self-reflective_RAG.git
+cd backend
 ```
 
 2. Install dependencies:

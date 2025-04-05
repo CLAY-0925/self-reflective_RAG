@@ -1,162 +1,143 @@
-# MedicalChatbot Frontend
+# Medical Chatbot Frontend Application
 
-This is an intelligent medical conversation frontend application built with React, TypeScript, and Material UI. It allows users to converse with an AI assistant, get medical advice, and manage case information.
+## Project Introduction
 
-## Key Features
+The Medical Chatbot is a web application based on React and TypeScript, providing functionality for users to engage in medical-related conversations with an AI assistant. The application features a modern interface design and supports multiple session management, medical record maintenance, user focus point marking, and more.
 
-* Real-time chat interface
-* Session management (create, select, delete)
-* Support for WebSocket and HTTP API communication
-* Medical case information display (treatment progress, patient information, information to be confirmed)
-* Related question suggestions
-* Configurable feature toggles (e.g., case summary, web search)
-* Light/dark theme switching
+## Technology Stack
 
-## Requirements
+- **Frontend Framework**: React 18, TypeScript
+- **UI Component Library**: Ant Design (antd)
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **HTTP Client**: Axios
+- **WebSocket**: For real-time communication
+- **Routing**: React Router
+- **Markdown Rendering**: React Markdown
 
-* [Node.js](https://nodejs.org/) (v18.x or higher recommended)
-* [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+## Project Features
 
-## Installation Steps
+- Multiple session management
+- Medical record creation and updates
+- Real-time AI conversation
+- User focus point marking and navigation
+- Medical progress tracking
+- Dark/light theme support
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/medical_chatbot.git
-   cd medical_chatbot
-   ```
+## Installation and Running
 
-2. **Install dependencies:**
-   ```bash
-   npm install --legacy-peer-deps # Ignore dependency conflicts from packages that haven't been updated
-   # or
-   yarn install
-   ```
+### Environment Requirements
 
-## Configuration
+- Node.js 14.0+
+- npm 6.0+ or yarn 1.22+
 
-The application needs to connect to a backend API. Make sure the backend service is running.
+### Installing Dependencies
 
-By default, the frontend will try to connect to `http://localhost:8000/api`. If your backend API address is different, you need to modify the configuration file:
+```bash
+# Using npm
+npm install
 
-* Open the `src/utils/config.ts` file.
-* Find the `config.apiBaseUrl` variable.
-* Change its value to your actual backend API address.
-
-```typescript
-// src/utils/config.ts
-export const config = {
-  // ... other configurations
-  apiBaseUrl: process.env.REACT_APP_API_BASE_URL || 'http://your-backend-api-url', // Modify this
-  // ... other configurations
-};
+# Or using yarn
+yarn
 ```
 
-Alternatively, you can configure the API address by setting the environment variable `REACT_APP_API_BASE_URL`, which is more commonly used in deployments.
+### Backend Address Configuration
 
-## Starting the Project
+The backend API address configuration is located in the `src/config/apiConfig.ts` file. The default configuration points to a local development server:
 
-1. **Make sure the backend service is started and running at the configured address.**
+```typescript
+// Base URL
+export const BASE_URL = 'http://localhost:8000/api';
+```
 
-2. **Start the frontend development server:**
-   ```bash
-   npm start
-   # or
-   yarn start
-   ```
+To modify the backend address, please edit the `BASE_URL` constant in this file. For example, to point to a production backend service:
 
-3. Open `http://localhost:3000` in your browser (or another address as indicated by your terminal).
+```typescript
+// Base URL
+export const BASE_URL = 'https://your-production-backend.com/api';
+```
+
+### Development Mode
+
+Run the application in development mode, with hot reload support:
+
+```bash
+# Using npm
+npm run dev
+
+# Or using yarn
+yarn dev
+```
+
+The development server will start at `http://localhost:5173`
+
+### Production Mode
+
+#### Building the Application
+
+```bash
+# Using npm
+npm run build
+
+# Or using yarn
+yarn build
+```
+
+The built files will be generated in the `dist` directory.
+
+#### Previewing the Production Build
+
+```bash
+# Using npm
+npm run preview
+
+# Or using yarn
+yarn preview
+```
+
+### Environment Variables
+
+You can customize configurations for different environments by creating the following files:
+
+- `.env`: Default environment variables
+- `.env.development`: Development environment variables
+- `.env.production`: Production environment variables
+
+For example, you can create a `.env.production` file with the following content:
+
+```
+VITE_API_BASE_URL=https://your-production-backend.com/api
+```
+
+Then use it in `apiConfig.ts`:
+
+```typescript
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+```
 
 ## Project Structure
 
 ```
-frontend/
-├── public/                    # Static files
-├── src/                       # Source code
-│   ├── components/            # UI components
-│   │   ├── Chat/              # Chat-related components
-│   │   ├── Layout/            # Layout components
-│   │   ├── MedicalRecord/     # Medical record components
-│   │   └── UI/                # General UI components
-│   ├── contexts/              # React contexts
-│   ├── hooks/                 # Custom React hooks
-│   ├── models/                # TypeScript interfaces/types
-│   ├── services/              # API services
-│   ├── stores/                # State management
-│   ├── utils/                 # Utility functions
-│   ├── App.tsx                # Main App component
-│   └── index.tsx              # Application entry point
-├── package.json               # Dependencies and scripts
-└── tsconfig.json              # TypeScript configuration
+src/
+├── api/          # API services and communication
+├── assets/       # Static resources
+├── components/   # Reusable components
+│   ├── chat/     # Chat-related components
+│   ├── layout/   # Layout components
+│   └── medical/  # Medical record-related components
+├── config/       # Configuration files
+├── context/      # React contexts
+├── hooks/        # Custom Hooks
+├── pages/        # Page components
+├── types/        # TypeScript type definitions
+└── utils/        # Utility functions
 ```
 
-## Features in Detail
+## Development Notes
 
-### Real-time Chat
-
-The chat interface supports:
-- WebSocket connection for real-time communication
-- Streaming responses from the backend
-- Markdown rendering for formatted responses
-- Code syntax highlighting
-- Message status indicators
-
-### Medical Record Management
-
-The application automatically:
-- Extracts and displays patient information from conversations
-- Shows treatment progress
-- Highlights information that needs confirmation
-- Updates the medical record in real-time as the conversation progresses
-
-### Session Management
-
-Users can:
-- Create new chat sessions
-- Switch between existing sessions
-- Delete sessions
-- View session history
-
-### UI/UX Features
-
-- Responsive design for desktop and mobile
-- Accessibility features
-- Light and dark theme support
-- Progress indicators during API calls
-- Error handling with user-friendly messages
-
-## Technologies Used
-
-- **React**: UI library
-- **TypeScript**: Type-safe JavaScript
-- **Material UI**: Component library
-- **React Query**: Data fetching and caching
-- **WebSocket**: Real-time communication
-- **Marked**: Markdown parsing
-- **Highlight.js**: Code syntax highlighting
-
-## Development
-
-For development purposes:
-
-1. **Running in development mode:**
-   ```bash
-   npm start
-   ```
-
-2. **Building for production:**
-   ```bash
-   npm run build
-   ```
-
-3. **Running tests:**
-   ```bash
-   npm test
-   ```
-
-## Contributing
-
-Pull requests and issues are welcome!
+- Ensure the backend service is started and accessible
+- WebSocket connection requires backend support
 
 ## License
 
-(Optional) Add your project license information here, such as MIT, Apache 2.0, etc. 
+[MIT License](LICENSE)

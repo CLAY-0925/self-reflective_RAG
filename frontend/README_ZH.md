@@ -1,75 +1,143 @@
-# MedicalChatbot Frontend
+# 医学聊天机器人前端应用
 
-这是一个基于 React、TypeScript 和 Material UI 构建的智能医疗对话前端应用。它允许用户与 AI 助手进行对话，获取医疗建议，并管理病例信息。
+## 项目介绍
 
-## 主要特性
+医学聊天机器人是一个基于React和TypeScript的Web应用，提供用户与AI助手进行医疗相关对话的功能。应用具有现代化的界面设计，支持多会话管理、医疗记录维护、用户关注点标记等功能。
 
-*   实时聊天界面
-*   会话管理 (创建、选择、删除)
-*   支持 WebSocket 和 HTTP API 通信
-*   医疗病例信息展示 (诊疗进度、患者信息、待确认信息)
-*   相关问题建议
-*   可配置的功能开关 (例如：病例总结、联网搜索)
-*   明/暗主题切换
+## 技术栈
 
-## 环境要求
+- **前端框架**: React 18, TypeScript
+- **UI组件库**: Ant Design (antd)
+- **构建工具**: Vite
+- **样式**: Tailwind CSS
+- **HTTP客户端**: Axios
+- **WebSocket**: 用于实时通信
+- **路由**: React Router
+- **Markdown渲染**: React Markdown
 
-*   [Node.js](https://nodejs.org/) (建议使用 v18.x 或更高版本)
-*   [npm](https://www.npmjs.com/) 或 [yarn](https://yarnpkg.com/)
+## 项目功能
 
-## 安装步骤
+- 多会话管理
+- 医疗记录创建与更新
+- 实时AI对话
+- 用户关注点标记与导航
+- 医疗进度跟踪
+- 暗色/亮色主题支持
 
-1.  **克隆仓库:**
-    ```bash
-    git clone https://github.com/CLAY-0925/medical_chatbot.git
-    cd <project-directory-name>    # 替换为项目目录名
-    ```
+## 安装与运行
 
-2.  **安装依赖:**
-    ```bash
-    npm install --legacy-peer-deps # 忽略一些package未更新，而识别的依赖冲突，这些冲突并不会导致问题
-    # 或者
-    yarn install
-    ```
+### 环境要求
 
-## 配置
+- Node.js 14.0+
+- npm 6.0+ 或 yarn 1.22+
 
-应用需要连接到后端 API。请确保后端服务正在运行。
+### 安装依赖
 
-默认情况下，前端会尝试连接到 `http://localhost:8000/api`。如果您的后端 API 地址不同，您需要修改配置文件：
+```bash
+# 使用npm
+npm install
 
-*   打开 `src/utils/config.ts` 文件。
-*   找到 `config.apiBaseUrl` 变量。
-*   将其值修改为您的实际后端 API 地址。
-
-```typescript
-// src/utils/config.ts
-export const config = {
-  // ... 其他配置
-  apiBaseUrl: process.env.REACT_APP_API_BASE_URL || 'http://your-backend-api-url', // 修改这里
-  // ... 其他配置
-};
+# 或使用yarn
+yarn
 ```
 
-或者，您可以通过设置环境变量 `REACT_APP_API_BASE_URL` 来配置 API 地址，这在部署时更常用。
+### 后端地址配置
 
-## 启动项目
+项目的后端API地址配置位于 `src/config/apiConfig.ts` 文件中。默认配置指向本地开发服务器：
 
-1.  **确保后端服务已启动并运行在配置的地址上。**
+```typescript
+// 基础URL
+export const BASE_URL = 'http://localhost:8000/api';
+```
 
-2.  **启动前端开发服务器:**
-    ```bash
-    npm start
-    # 或者
-    yarn start
-    ```
+要修改后端地址，请编辑此文件中的 `BASE_URL` 常量。例如，要指向生产环境的后端服务：
 
-3.  在浏览器中打开 `http://localhost:3000` (或者您终端提示的其他地址)。
+```typescript
+// 基础URL
+export const BASE_URL = 'https://your-production-backend.com/api';
+```
 
-## 贡献
+### 开发模式
 
-欢迎提交 Pull Requests 或 Issues！
+在开发模式下运行应用，支持热重载：
+
+```bash
+# 使用npm
+npm run dev
+
+# 或使用yarn
+yarn dev
+```
+
+开发服务器将启动在 `http://localhost:5173`
+
+### 生产模式
+
+#### 构建应用
+
+```bash
+# 使用npm
+npm run build
+
+# 或使用yarn
+yarn build
+```
+
+构建后的文件将生成在 `dist` 目录中。
+
+#### 预览生产构建
+
+```bash
+# 使用npm
+npm run preview
+
+# 或使用yarn
+yarn preview
+```
+
+### 环境变量
+
+可以通过创建以下文件来定制不同环境的配置：
+
+- `.env`: 默认环境变量
+- `.env.development`: 开发环境变量
+- `.env.production`: 生产环境变量
+
+例如，可以创建 `.env.production` 文件，内容如下：
+
+```
+VITE_API_BASE_URL=https://your-production-backend.com/api
+```
+
+然后在 `apiConfig.ts` 中使用：
+
+```typescript
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+```
+
+## 项目结构
+
+```
+src/
+├── api/          # API服务和通信
+├── assets/       # 静态资源
+├── components/   # 可复用组件
+│   ├── chat/     # 聊天相关组件
+│   ├── layout/   # 布局组件
+│   └── medical/  # 医疗记录相关组件
+├── config/       # 配置文件
+├── context/      # React上下文
+├── hooks/        # 自定义Hooks
+├── pages/        # 页面组件
+├── types/        # TypeScript类型定义
+└── utils/        # 工具函数
+```
+
+## 开发注意事项
+
+- 确保后端服务已启动并可访问
+- WebSocket连接需要后端支持
 
 ## 许可证
 
-(可选) 请在此处添加您的项目许可证信息，例如 MIT、Apache 2.0 等。
+[MIT License](LICENSE)

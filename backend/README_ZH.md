@@ -59,8 +59,8 @@ medical_bot/
 1. 克隆项目:
 
 ```bash
-git clone <项目仓库地址>
-cd medical_bot
+git clone https://github.com/CLAY-0925/self-reflective_RAG.git
+cd backend
 ```
 
 2. 安装依赖:

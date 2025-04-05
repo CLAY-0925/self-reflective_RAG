@@ -1,5 +1,5 @@
 # self-reflective_RAG
-Repository for ICDE2025 submission
+Repository for xxxxx submission
 
 # Folder Structure Description
 This code repository contains the dataset for the intent recognition training and user testing of the paper's system 1 (Medical_HAI), as well as the prompts used in the paper. Below is a detailed structure of the folders and an explanation of each file/subfolder.

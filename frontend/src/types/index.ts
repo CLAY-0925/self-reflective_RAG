@@ -58,23 +58,23 @@ export interface WebSocketResponse {
 
 // 医疗记录相关
 export interface MedicalRecordConfirmedInfo {
-  基本信息: string;
-  主诉: string;
-  症状描述: string;
-  现病史: string;
-  既往史: string;
-  用药情况: string;
-  家族史: string;
+  Basic_Info: string;
+  Chief_Complaint: string;
+  Symptom_Description: string;
+  History_of_Present_Illness: string;
+  Past_Medical_History: string;
+  Medications: string;
+  Family_History: string;
 }
 
 export interface MedicalRecordPendingClues {
-  待确认症状: string;
-  需澄清细节: string;
+  Symptoms_to_Confirm: string;
+  Details_Needing_Clarification: string;
 }
 
 export interface MedicalRecordStage {
-  信息收集: number | string;
-  鉴别诊断: number | string;
+  "Medical record progress": number | string;
+  "Diagnosis and treatment progress": number | string;
 }
 
 export interface MedicalRecord {

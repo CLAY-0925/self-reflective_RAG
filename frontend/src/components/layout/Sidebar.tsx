@@ -36,7 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
   
   const handleCreateSession = async () => {
     if (!newSessionTitle.trim()) {
-      message.error('请输入会话标题');
+      message.error('Please enter a session title');
       return;
     }
     
@@ -44,9 +44,9 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
       await createSession(newSessionTitle);
       setIsModalOpen(false);
       setNewSessionTitle('');
-      message.success('创建会话成功');
+      message.success('Session created successfully');
     } catch (error) {
-      message.error('创建会话失败');
+      message.error('Failed to create session');
     }
   };
   
@@ -96,26 +96,26 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
     <div className="h-full w-64 bg-gray-100 dark:bg-gray-800 flex flex-col border-r border-gray-200 dark:border-gray-700">
       {/* 顶部操作区 */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <span className="font-medium">聊天会话</span>
+        <span className="font-medium">Chat Sessions</span>
         <div className="flex items-center">
           <Button 
             type="text" 
             icon={<PlusOutlined />} 
             onClick={() => setIsModalOpen(true)}
-            title="新建会话"
+            title="New Session"
           />
           <Button 
             type="text" 
             icon={<LeftOutlined />} 
             onClick={toggleSidebar}
-            title="收起侧边栏"
+            title="Collapse Sidebar"
           />
         </div>
       </div>
       
       {/* AI选项 */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h3 className="font-medium mb-3 text-gray-700 dark:text-gray-300">AI 选项</h3>
+        <h3 className="font-medium mb-3 text-gray-700 dark:text-gray-300">AI Options</h3>
         <div className="space-y-2">
           <div 
             className="flex items-center cursor-pointer"
@@ -124,7 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
             <Checkbox checked={aiOptions.enableMedicalAgent} />
             <div className="ml-2 flex items-center text-sm">
               <RobotOutlined className="mr-1" />
-              <span>启用医学聊天agent</span>
+              <span>Enable Medical Chat Agent</span>
             </div>
           </div>
           
@@ -135,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
             <Checkbox checked={aiOptions.enableIntentPrediction} />
             <div className="ml-2 flex items-center text-sm">
               <AimOutlined className="mr-1" />
-              <span>启用意图预测</span>
+              <span>Enable Intent Prediction</span>
             </div>
           </div>
           
@@ -146,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
             <Checkbox checked={aiOptions.enableMedicalSummary} />
             <div className="ml-2 flex items-center text-sm">
               <FileTextOutlined className="mr-1" />
-              <span>启用病例总结</span>
+              <span>Enable Medical Summary</span>
             </div>
           </div>
           
@@ -157,7 +157,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
             <Checkbox checked={aiOptions.enableWebSearch} />
             <div className="ml-2 flex items-center text-sm">
               <SearchOutlined className="mr-1" />
-              <span>启用联网搜索</span>
+              <span>Enable Web Search</span>
             </div>
           </div>
         </div>
@@ -171,7 +171,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, toggleSidebar }) => {
           </div>
         ) : sessions.length === 0 ? (
           <div className="text-center text-gray-500 mt-4">
-            没有会话，点击加号创建
+            No sessions, click the plus button to create one
           </div>
         ) : (
           <div className="space-y-1">

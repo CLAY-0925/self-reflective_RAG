@@ -1,6 +1,5 @@
 """
-启动脚本
-运行方式：python run.py
+start：python run.py
 """
 import uvicorn
 

@@ -5,7 +5,7 @@ import { useChat } from '../../context/ChatContext';
 
 const { Paragraph, Link, Text } = Typography;
 
-// 安全获取对象属性的函数
+// Function to safely get object properties
 const safeGet = (obj: any, path: string, defaultValue: any = ''): any => {
   try {
     const parts = path.split('.');
@@ -16,42 +16,42 @@ const safeGet = (obj: any, path: string, defaultValue: any = ''): any => {
     }
     return result === null || result === undefined ? defaultValue : result;
   } catch (error) {
-    console.error('获取属性失败:', error);
+    console.error('Failed to get property:', error);
     return defaultValue;
   }
 };
 
-// 尝试从URL中获取主机名，如果失败则返回原始链接
+// Try to get hostname from URL, return original link if failed
 const getHostname = (url: string): string => {
   try {
     return new URL(url).hostname;
   } catch (error) {
-    console.error('解析URL失败:', error);
+    console.error('Failed to parse URL:', error);
     return url;
   }
 };
 
-// 清理标题文本，移除"标题:"前缀
+// Clean title text, remove "Title:" prefix
 const cleanTitle = (title: string): string => {
-  if (typeof title !== 'string') return '未知标题';
-  return title.replace(/^标题:/, '').trim();
+  if (typeof title !== 'string') return 'Unknown Title';
+  return title.replace(/^Title:/, '').trim();
 };
 
 const SearchResults: React.FC = () => {
   const { searchResults } = useChat();
   
-  // 确保searchResults是一个数组
+  // Ensure searchResults is an array
   const resultsArray = Array.isArray(searchResults) ? searchResults : [];
   
-  // 过滤掉可能有问题的结果
+  // Filter out potentially problematic results
   const validResults = resultsArray.filter(item => {
     return (
       item && 
       typeof item === 'object' && 
       (
-        // 检查item.title
+        // Check item.title
         (typeof safeGet(item, 'title') === 'string') ||
-        // 或者检查source.tittle/source.title
+        // Or check source.tittle/source.title
         (item.source && 
          (typeof safeGet(item, 'source.tittle') === 'string' || 
           typeof safeGet(item, 'source.title') === 'string'))
@@ -61,9 +61,9 @@ const SearchResults: React.FC = () => {
   
   if (!validResults || validResults.length === 0) {
     return (
-      <Card title="联网搜索结果" className="mb-4">
+      <Card title="Online Search Results" className="mb-4">
         <Empty 
-          description="暂无搜索结果" 
+          description="No search results" 
           image={Empty.PRESENTED_IMAGE_SIMPLE} 
         />
       </Card>
@@ -71,22 +71,22 @@ const SearchResults: React.FC = () => {
   }
   
   return (
-    <Card title="联网搜索结果" className="mb-4">
+    <Card title="Online Search Results" className="mb-4">
       <List
         itemLayout="vertical"
         dataSource={validResults}
         renderItem={(item) => {
-          // 处理title字段
+          // Process title field
           const itemTitle = safeGet(item, 'title', '');
           
-          // 处理source字段
+          // Process source field
           const source = item.source || {};
           const sourceTitleRaw = safeGet(source, 'tittle', safeGet(source, 'title', ''));
           const sourceTitle = cleanTitle(sourceTitleRaw);
           const sourceContent = safeGet(source, 'content', '');
           const sourceLink = safeGet(source, 'link', '#');
           
-          // 使用最佳可用标题
+          // Use best available title
           const displayTitle = cleanTitle(itemTitle || sourceTitle);
           
           return (
@@ -94,7 +94,7 @@ const SearchResults: React.FC = () => {
               key={displayTitle || Math.random().toString()}
               className="border-b last:border-0 pb-4"
             >
-              {/* 标题和链接 */}
+              {/* Title and Link */}
               <div className="mb-2">
                 <div className="font-medium text-primary-600 dark:text-primary-400 mb-1">
                   {displayTitle}
@@ -111,17 +111,17 @@ const SearchResults: React.FC = () => {
                 </div>
               </div>
               
-              {/* 内容摘要 */}
+              {/* Content Summary */}
               {sourceContent && (
                 <Paragraph 
-                  ellipsis={{ rows: 3, expandable: true, symbol: '展开' }}
+                  ellipsis={{ rows: 3, expandable: true, symbol: 'Expand' }}
                   className="text-sm text-gray-600 dark:text-gray-300 mb-2"
                 >
                   {sourceContent}
                 </Paragraph>
               )}
               
-              {/* 如果item.content是数组且有内容，显示详细信息 */}
+              {/* If item.content is array and has content, show detailed information */}
               {Array.isArray(item.content) && item.content.length > 0 && (
                 <div className={sourceContent ? "mt-2 pt-2 border-t border-gray-100 dark:border-gray-700" : ""}>
                   {item.content.map((contentItem, index) => (

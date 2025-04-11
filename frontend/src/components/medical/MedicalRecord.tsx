@@ -7,24 +7,24 @@ import { MedicalRecord as MedicalRecordType } from '../../types';
 const { TextArea } = Input;
 const { Panel } = Collapse;
 
-// 默认的空医疗记录结构
+// Default empty medical record structure
 const defaultMedicalRecord: MedicalRecordType = {
   confirmed_info: {
-    基本信息: '',
-    主诉: '',
-    症状描述: '',
-    现病史: '',
-    既往史: '',
-    用药情况: '',
-    家族史: ''
+    Basic_Info: '',
+    Chief_Complaint: '',
+    Symptom_Description: '',
+    History_of_Present_Illness: '',
+    Past_Medical_History: '',
+    Medications: '',
+    Family_History: ''
   },
   pending_clues: {
-    待确认症状: '',
-    需澄清细节: ''
+    Symptoms_to_Confirm: '',
+    Details_Needing_Clarification: ''
   },
   stage: {
-    信息收集: 0,
-    鉴别诊断: 0
+    "Medical record progress": 0,
+    "Diagnosis and treatment progress": 0
   }
 };
 
@@ -33,62 +33,59 @@ const MedicalRecord: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
   
-  // 使用提供的医疗记录或默认记录
+  // Use provided medical record or default record
   const recordToDisplay = medicalRecord || defaultMedicalRecord;
   
   const handleFinish = (values: any) => {
     try {
-      // 确保stage字段的值是有效的数字
       let stage = { ...recordToDisplay.stage };
       
-      // 如果stage不存在或结构不完整，创建默认的stage对象
       if (!stage || typeof stage !== 'object') {
-        stage = { 信息收集: 0, 鉴别诊断: 0 };
+        stage = { "Medical record progress": 0, "Diagnosis and treatment progress": 0 };
       }
       
-      // 确保信息收集和鉴别诊断字段是数字
-      if (stage.信息收集 !== undefined) {
-        let value = stage.信息收集;
+      if (stage["Medical record progress"] !== undefined) {
+        let value = stage["Medical record progress"];
         if (typeof value === 'string') {
           value = parseInt((value as string).replace('%', ''), 10);
         }
-        stage.信息收集 = isNaN(Number(value)) ? 0 : Number(value);
+        stage["Medical record progress"] = isNaN(Number(value)) ? 0 : Number(value);
       } else {
-        stage.信息收集 = 0;
+        stage["Medical record progress"] = 0;
       }
       
-      if (stage.鉴别诊断 !== undefined) {
-        let value = stage.鉴别诊断;
+      if (stage["Diagnosis and treatment progress"] !== undefined) {
+        let value = stage["Diagnosis and treatment progress"];
         if (typeof value === 'string') {
           value = parseInt((value as string).replace('%', ''), 10);
         }
-        stage.鉴别诊断 = isNaN(Number(value)) ? 0 : Number(value);
+        stage["Diagnosis and treatment progress"] = isNaN(Number(value)) ? 0 : Number(value);
       } else {
-        stage.鉴别诊断 = 0;
+        stage["Diagnosis and treatment progress"] = 0;
       }
       
       const updatedRecord: MedicalRecordType = {
         confirmed_info: {
-          基本信息: values.基本信息 || '',
-          主诉: values.主诉 || '',
-          症状描述: values.症状描述 || '',
-          现病史: values.现病史 || '',
-          既往史: values.既往史 || '',
-          用药情况: values.用药情况 || '',
-          家族史: values.家族史 || ''
+          Basic_Info: values.Basic_Info || '',
+          Chief_Complaint: values.Chief_Complaint || '',
+          Symptom_Description: values.Symptom_Description || '',
+          History_of_Present_Illness: values.History_of_Present_Illness || '',
+          Past_Medical_History: values.Past_Medical_History || '',
+          Medications: values.Medications || '',
+          Family_History: values.Family_History || ''
         },
         pending_clues: {
-          待确认症状: values.待确认症状 || '',
-          需澄清细节: values.需澄清细节 || ''
+          Symptoms_to_Confirm: values.Symptoms_to_Confirm || '',
+          Details_Needing_Clarification: values.Details_Needing_Clarification || ''
         },
         stage: stage
       };
       
       updateMedicalRecord(updatedRecord);
       setIsEditing(false);
-      message.success('医疗记录已更新');
+      message.success('Medical record updated');
     } catch (error) {
-      message.error('更新失败');
+      message.error('Update failed');
       console.error(error);
     }
   };
@@ -96,7 +93,7 @@ const MedicalRecord: React.FC = () => {
   if (isEditing) {
     return (
       <Card 
-        title="编辑医疗记录" 
+        title="Edit Medical Record" 
         className="mb-4"
         extra={
           <Button 
@@ -104,7 +101,7 @@ const MedicalRecord: React.FC = () => {
             icon={<SaveOutlined />}
             onClick={() => form.submit()}
           >
-            保存
+            Save
           </Button>
         }
       >
@@ -112,47 +109,47 @@ const MedicalRecord: React.FC = () => {
           form={form}
           layout="vertical"
           initialValues={{
-            基本信息: recordToDisplay.confirmed_info.基本信息,
-            主诉: recordToDisplay.confirmed_info.主诉,
-            症状描述: recordToDisplay.confirmed_info.症状描述,
-            现病史: recordToDisplay.confirmed_info.现病史,
-            既往史: recordToDisplay.confirmed_info.既往史,
-            用药情况: recordToDisplay.confirmed_info.用药情况,
-            家族史: recordToDisplay.confirmed_info.家族史,
-            待确认症状: recordToDisplay.pending_clues.待确认症状,
-            需澄清细节: recordToDisplay.pending_clues.需澄清细节
+            Basic_Info: recordToDisplay.confirmed_info.Basic_Info,
+            Chief_Complaint: recordToDisplay.confirmed_info.Chief_Complaint,
+            Symptom_Description: recordToDisplay.confirmed_info.Symptom_Description,
+            History_of_Present_Illness: recordToDisplay.confirmed_info.History_of_Present_Illness,
+            Past_Medical_History: recordToDisplay.confirmed_info.Past_Medical_History,
+            Medications: recordToDisplay.confirmed_info.Medications,
+            Family_History: recordToDisplay.confirmed_info.Family_History,
+            Symptoms_to_Confirm: recordToDisplay.pending_clues.Symptoms_to_Confirm,
+            Details_Needing_Clarification: recordToDisplay.pending_clues.Details_Needing_Clarification
           }}
           onFinish={handleFinish}
         >
-          <Collapse defaultActiveKey={['1', '2']} className="mb-4">
-            <Panel header="已确认信息" key="1">
-              <Form.Item name="基本信息" label="基本信息">
+          <Collapse defaultActiveKey={['1', '2']}>
+            <Panel header="Confirmed Information" key="1">
+              <Form.Item name="Basic_Info" label="Basic Information">
                 <TextArea rows={2} />
               </Form.Item>
-              <Form.Item name="主诉" label="主诉">
+              <Form.Item name="Chief_Complaint" label="Chief Complaint">
                 <TextArea rows={2} />
               </Form.Item>
-              <Form.Item name="症状描述" label="症状描述">
+              <Form.Item name="Symptom_Description" label="Symptom Description">
                 <TextArea rows={2} />
               </Form.Item>
-              <Form.Item name="现病史" label="现病史">
+              <Form.Item name="History_of_Present_Illness" label="History of Present Illness">
                 <TextArea rows={3} />
               </Form.Item>
-              <Form.Item name="既往史" label="既往史">
+              <Form.Item name="Past_Medical_History" label="Past Medical History">
                 <TextArea rows={2} />
               </Form.Item>
-              <Form.Item name="用药情况" label="用药情况">
+              <Form.Item name="Medications" label="Medications">
                 <TextArea rows={2} />
               </Form.Item>
-              <Form.Item name="家族史" label="家族史">
+              <Form.Item name="Family_History" label="Family History">
                 <TextArea rows={2} />
               </Form.Item>
             </Panel>
-            <Panel header="待确认信息" key="2">
-              <Form.Item name="待确认症状" label="待确认症状">
+            <Panel header="Information to Confirm" key="2">
+              <Form.Item name="Symptoms_to_Confirm" label="Symptoms to Confirm">
                 <TextArea rows={3} />
               </Form.Item>
-              <Form.Item name="需澄清细节" label="需澄清细节">
+              <Form.Item name="Details_Needing_Clarification" label="Details Needing Clarification">
                 <TextArea rows={3} />
               </Form.Item>
             </Panel>
@@ -164,27 +161,27 @@ const MedicalRecord: React.FC = () => {
   
   return (
     <Card 
-      title="医疗记录" 
+      title="Medical Record" 
       className="mb-4"
       extra={
         <Button 
           icon={<EditOutlined />} 
           onClick={() => setIsEditing(true)}
         >
-          编辑
+          Edit
         </Button>
       }
     >
       <div className="mb-4">
-        <div className="mb-2 font-medium">问诊进度</div>
+        <div className="mb-2 font-medium">Consultation Progress</div>
         <div className="flex mb-1">
-          <span>病例进度</span>
+          <span>Case Progress</span>
         </div>
         <Progress 
           percent={(() => {
             if (!recordToDisplay.stage) return 0;
             
-            let value = recordToDisplay.stage.信息收集;
+            let value = recordToDisplay.stage["Medical record progress"];
             if (typeof value === 'string') {
               value = parseInt((value as string).replace('%', ''), 10);
             }
@@ -197,13 +194,13 @@ const MedicalRecord: React.FC = () => {
         />
         
         <div className="flex mb-1">
-          <span>诊疗进度</span>
+          <span>Treatment Progress</span>
         </div>
         <Progress 
           percent={(() => {
             if (!recordToDisplay.stage) return 0;
             
-            let value = recordToDisplay.stage.鉴别诊断;
+            let value = recordToDisplay.stage["Diagnosis and treatment progress"];
             if (typeof value === 'string') {
               value = parseInt((value as string).replace('%', ''), 10);
             }
@@ -216,40 +213,40 @@ const MedicalRecord: React.FC = () => {
       </div>
       
       <Collapse defaultActiveKey={['1']}>
-        <Panel header="已确认信息" key="1">
+        <Panel header="Confirmed Information" key="1">
           {recordToDisplay.confirmed_info ? (
             Object.entries(recordToDisplay.confirmed_info).map(([key, value]) => (
               <div key={key} className="mb-3">
                 <div className="font-medium text-sm text-gray-500">{key}</div>
                 <div className="mt-1">
-                  {value || <span className="text-gray-400">暂无数据</span>}
+                  {value || <span className="text-gray-400">No data</span>}
                 </div>
               </div>
             ))
           ) : (
-            <div className="text-gray-400">暂无确认信息</div>
+            <div className="text-gray-400">No confirmed information</div>
           )}
         </Panel>
         
-        <Panel header="待确认信息" key="2">
+        <Panel header="Information to Confirm" key="2">
           {recordToDisplay.pending_clues ? (
             <>
               <div className="mb-3">
-                <div className="font-medium text-sm text-gray-500">待确认症状</div>
+                <div className="font-medium text-sm text-gray-500">Unconfirmed Symptoms</div>
                 <div className="mt-1">
-                  {recordToDisplay.pending_clues.待确认症状 || <span className="text-gray-400">暂无数据</span>}
+                  {recordToDisplay.pending_clues.Symptoms_to_Confirm || <span className="text-gray-400">No data</span>}
                 </div>
               </div>
               
               <div>
-                <div className="font-medium text-sm text-gray-500">需澄清细节</div>
+                <div className="font-medium text-sm text-gray-500">Details to Clarify</div>
                 <div className="mt-1">
-                  {recordToDisplay.pending_clues.需澄清细节 || <span className="text-gray-400">暂无数据</span>}
+                  {recordToDisplay.pending_clues.Details_Needing_Clarification || <span className="text-gray-400">No data</span>}
                 </div>
               </div>
             </>
           ) : (
-            <div className="text-gray-400">暂无待确认信息</div>
+            <div className="text-gray-400">No information to confirm</div>
           )}
         </Panel>
       </Collapse>

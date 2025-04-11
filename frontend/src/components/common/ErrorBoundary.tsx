@@ -33,7 +33,7 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // 你同样可以将错误日志上报给服务器
-    console.error('组件错误:', error, errorInfo);
+    console.error('Component error:', error, errorInfo);
     this.setState({
       error,
       errorInfo
@@ -59,15 +59,15 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="p-4">
           <Alert
-            message="组件出错了"
+            message="Component Error"
             description={
               <div>
-                <p>抱歉，组件渲染时发生了错误。</p>
+                <p>Sorry, an error occurred while rendering the component.</p>
                 <p className="text-xs text-gray-500 mt-2 mb-2">
                   {this.state.error && this.state.error.toString()}
                 </p>
                 <Button type="primary" onClick={this.handleReset}>
-                  重试
+                  Retry
                 </Button>
               </div>
             }

@@ -18,7 +18,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ collapsed, togglePanel }) => {
   // 计算联网搜索结果的标签，如果有结果则显示数量
   const searchTabLabel = (
     <span>
-      <GlobalOutlined /> 联网搜索
+      <GlobalOutlined /> Web Search
       {searchResults && searchResults.length > 0 && (
         <span className="ml-1 px-1.5 py-0.5 text-xs bg-primary-100 text-primary-700 rounded-full">
           {searchResults.length}
@@ -42,7 +42,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ collapsed, togglePanel }) => {
           icon={<LeftOutlined />}
           onClick={togglePanel}
           className="mb-6"
-          title="展开信息面板"
+          title="Expand Info Panel"
         />
       </div>
     );
@@ -51,12 +51,12 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ collapsed, togglePanel }) => {
   return (
     <div className="h-full w-96 bg-gray-100 dark:bg-gray-800 flex flex-col border-l border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <span className="font-medium">参考信息</span>
+        <span className="font-medium">Reference Information</span>
         <Button 
           type="text" 
           icon={<RightOutlined />} 
           onClick={togglePanel}
-          title="收起信息面板"
+          title="Collapse Info Panel"
         />
       </div>
       
@@ -67,7 +67,7 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ collapsed, togglePanel }) => {
           items={[
             {
               key: '1',
-              label: <span><FileTextOutlined /> 医疗记录</span>,
+              label: <span><FileTextOutlined /> Medical Record</span>,
               children: (
                 <div className="p-4 overflow-y-auto h-full">
                   <ErrorBoundary>

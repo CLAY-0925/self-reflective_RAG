@@ -12,9 +12,9 @@ interface AIStatusIndicatorProps {
 }
 
 const AIStatusIndicator: React.FC<AIStatusIndicatorProps> = ({ status }) => {
-  // 检查状态是否为"已完成"的函数
+  // Function to check if status is "complete"
   const isComplete = (statusText: string) => {
-    return statusText === 'complete' || statusText === '已完成';
+    return statusText === 'complete' || statusText === 'completed';
   };
 
   return (
@@ -25,7 +25,7 @@ const AIStatusIndicator: React.FC<AIStatusIndicatorProps> = ({ status }) => {
           text={
             <div className="flex items-center text-xs">
               <AimOutlined className="mr-1" />
-              <span>意图预测：{isComplete(status.intent) ? '已完成' : status.intent || '分析中...'}</span>
+              <span>Intent Analysis: {isComplete(status.intent) ? 'Completed' : status.intent || 'Analyzing...'}</span>
             </div>
           } 
         />
@@ -37,7 +37,7 @@ const AIStatusIndicator: React.FC<AIStatusIndicatorProps> = ({ status }) => {
           text={
             <div className="flex items-center text-xs">
               <SearchOutlined className="mr-1" />
-              <span>医学信息：{isComplete(status.medical_info) ? '已完成' : status.medical_info || '分析中...'}</span>
+              <span>Medical Info: {isComplete(status.medical_info) ? 'Completed' : status.medical_info || 'Analyzing...'}</span>
             </div>
           }
         />
@@ -49,7 +49,7 @@ const AIStatusIndicator: React.FC<AIStatusIndicatorProps> = ({ status }) => {
           text={
             <div className="flex items-center text-xs">
               <FileTextOutlined className="mr-1" />
-              <span>病例记录：{isComplete(status.medical_record) ? '已完成' : status.medical_record || '分析中...'}</span>
+              <span>Medical Record: {isComplete(status.medical_record) ? 'Completed' : status.medical_record || 'Analyzing...'}</span>
             </div>
           }
         />

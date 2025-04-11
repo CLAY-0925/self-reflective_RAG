@@ -16,13 +16,13 @@ const Header: React.FC = () => {
   
   const handleLogout = () => {
     logout();
-    message.success('退出登录成功');
+    message.success('Logged out successfully');
   };
   
   const items: MenuProps['items'] = [
     {
       key: 'username',
-      label: <span className="font-semibold">{user?.username || '未登录'}</span>,
+      label: <span className="font-semibold">{user?.username || 'Not logged in'}</span>,
       disabled: true,
     },
     {
@@ -33,7 +33,7 @@ const Header: React.FC = () => {
       label: (
         <Space>
           <LogoutOutlined />
-          <span>退出登录</span>
+          <span>Logout</span>
         </Space>
       ),
       onClick: handleLogout,
@@ -44,7 +44,7 @@ const Header: React.FC = () => {
     <div className="w-full h-16 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
       <div className="flex items-center">
         <div className="text-xl font-bold text-primary-600 dark:text-primary-400">
-          AI医学知识聊天机器人
+          AI Medical Knowledge Chatbot
         </div>
       </div>
       
@@ -54,7 +54,7 @@ const Header: React.FC = () => {
           icon={theme === 'dark' ? <SunOutlined /> : <MoonOutlined />}
           onClick={toggleTheme}
           className="flex items-center justify-center"
-          title={theme === 'dark' ? '切换到亮色模式' : '切换到暗色模式'}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
         />
         
         {user ? (
@@ -70,7 +70,7 @@ const Header: React.FC = () => {
             </div>
           </Dropdown>
         ) : (
-          <span className="text-gray-500">未登录</span>
+          <span className="text-gray-500">Not logged in</span>
         )}
       </div>
     </div>

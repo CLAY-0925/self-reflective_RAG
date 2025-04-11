@@ -1,4 +1,5 @@
 """
+Medical Information Crawler Service
 医疗信息爬虫服务
 """
 import requests
@@ -13,74 +14,75 @@ from app.services.dashscope_service import DashscopeService
 from app.services.summary_service import AiSummaryService
 import random
 import aiohttp
-# 配置日志
+
+# Configure logging / 配置日志
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 COOKIE = os.getenv('COOKIE')
 
-
-class MedicalCrawlerService( ):
+class MedicalCrawlerService:
     """
+    Medical Information Crawler Service
     医疗信息爬虫服务
     """
     
-    def __init__(self , llm_service: DashscopeService):
+    def __init__(self, llm_service: DashscopeService):
         """
-        初始化爬虫服务
+        Initialize crawler service / 初始化爬虫服务
         """
         self.headers = {
-        'cache-control': 'max-age=0',
-        'Cookie': COOKIE,
-        'sec-ch-ua':'"Not)A;Brand";v="99", "Microsoft Edge";v="127", "Chromium";v="127"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'document',
-        'sec-fetch-mode': 'navigate',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-user': '?1',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0'
+            'cache-control': 'max-age=0',
+            'Cookie': COOKIE,
+            'sec-ch-ua':'"Not)A;Brand";v="99", "Microsoft Edge";v="127", "Chromium";v="127"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'document',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-site': 'same-origin',
+            'sec-fetch-user': '?1',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0'
         }
 
         self.novip_headers = {
-        'cache-control': 'max-age=0',
-        'sec-ch-ua':'"Not)A;Brand";v="99", "Microsoft Edge";v="127", "Chromium";v="127"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'document',
-        'sec-fetch-mode': 'navigate',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-user': '?1',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0'
+            'cache-control': 'max-age=0',
+            'sec-ch-ua':'"Not)A;Brand";v="99", "Microsoft Edge";v="127", "Chromium";v="127"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'document',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-site': 'same-origin',
+            'sec-fetch-user': '?1',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0'
         }
-        self.llm_service = llm_service  # 确保注入依赖,使用单例模式
+        self.llm_service = llm_service  # Ensure dependency injection, using singleton pattern / 确保注入依赖,使用单例模式
         self.summary_service = AiSummaryService(llm_service)
         
     async def search_dingxiang(self, keywords: List[str], max_results: int = 3) -> List[Dict[str, Any]]:
         """
-        从丁香园搜索医疗信息
+        Search medical information from DXY / 从丁香园搜索医疗信息
         
         Args:
-            keywords: 搜索关键词列表
-            max_results: 最大返回结果数
+            keywords: Search keyword list / 搜索关键词列表
+            max_results: Maximum number of results to return / 最大返回结果数
             
         Returns:
-            搜索结果列表
+            Search result list / 搜索结果列表
         """
         results = []
         keyword_str = ' '.join(keywords)
         
         try:
-            # 丁香园搜索URL
+            # DXY search URL / 丁香园搜索URL
             search_url = f"https://www.dxy.cn/search/index?keyword={keyword_str}"
             
             response = requests.get(search_url, headers=self.headers, timeout=10)
             if response.status_code != 200:
-                logger.error(f"丁香园搜索请求失败: {response.status_code}")
+                logger.error(f"DXY search request failed: {response.status_code}")
                 return results
                 
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # 解析搜索结果
+            # Parse search results / 解析搜索结果
             search_results = soup.select('.search-result-list .item')
             
             for i, result in enumerate(search_results):
@@ -97,7 +99,7 @@ class MedicalCrawlerService( ):
                     url = url_element.get('href', '')
                     
                     results.append({
-                        'source': '丁香园',
+                        'source': 'DXY',
                         'title': title,
                         'summary': summary,
                         'url': url
@@ -106,35 +108,35 @@ class MedicalCrawlerService( ):
             return results
             
         except Exception as e:
-            logger.error(f"丁香园搜索异常: {str(e)}")
+            logger.error(f"DXY search exception: {str(e)}")
             return results
             
     async def search_msd(self, keywords: List[str], max_results: int = 3) -> List[Dict[str, Any]]:
         """
-        从默沙东医学手册搜索医疗信息
+        Search medical information from MSD Manual / 从默沙东医学手册搜索医疗信息
         
         Args:
-            keywords: 搜索关键词列表
-            max_results: 最大返回结果数
+            keywords: Search keyword list / 搜索关键词列表
+            max_results: Maximum number of results to return / 最大返回结果数
             
         Returns:
-            搜索结果列表
+            Search result list / 搜索结果列表
         """
         results = []
         keyword_str = ' '.join(keywords)
         
         try:
-            # 默沙东搜索URL
+            # MSD Manual search URL / 默沙东搜索URL
             search_url = f"https://www.msdmanuals.cn/search?query={keyword_str}"
             
             response = requests.get(search_url, headers=self.headers, timeout=10)
             if response.status_code != 200:
-                logger.error(f"默沙东搜索请求失败: {response.status_code}")
+                logger.error(f"MSD Manual search request failed: {response.status_code}")
                 return results
                 
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # 解析搜索结果
+            # Parse search results / 解析搜索结果
             search_results = soup.select('.search-results .result-item')
             
             for i, result in enumerate(search_results):
@@ -151,7 +153,7 @@ class MedicalCrawlerService( ):
                     url = url_element.get('href', '')
                     
                     results.append({
-                        'source': '默沙东医学手册',
+                        'source': 'MSD Manual',
                         'title': title,
                         'summary': summary,
                         'url': url
@@ -160,45 +162,34 @@ class MedicalCrawlerService( ):
             return results
             
         except Exception as e:
-            logger.error(f"默沙东搜索异常: {str(e)}")
+            logger.error(f"MSD Manual search exception: {str(e)}")
             return results
             
     async def search_medical_info(self, keywords: List[str], user_message, medical_record) -> Dict[str, Any]:
         """
-        综合搜索医疗信息
+        Comprehensive medical information search / 综合搜索医疗信息
         
         Args:
-            keywords: 搜索关键词列表
+            keywords: Search keyword list / 搜索关键词列表
             
         Returns:
-            搜索结果
+            Search results / 搜索结果
         """
-        # 并行搜索两个来源
+        # Parallel search from two sources / 并行搜索两个来源
         dingxiang_results = await self.dingxiang_search_key(keywords, user_message, medical_record)
-        print(f"dingxiang_result{dingxiang_results}")
+        print(f"DXY results: {dingxiang_results}")
         msd_results = await self.search_msd(keywords)
 
-        # 合并结果
-        # all_results = dingxiang_results + msd_results
-        
-        # # 格式化为易于阅读的文本
-        # formatted_text = ""
-        # for result in all_results:
-        #     formatted_text += f"【来源】{result['source']}\n"
-        #     formatted_text += f"【标题】{result['title']}\n"
-        #     formatted_text += f"【摘要】{result['summary']}\n"
-        #     formatted_text += f"【链接】{result['url']}\n\n"
-            
         return {
             'raw_results': dingxiang_results
         } 
     
     async def dingxiang_search_crawler(self, url, type):
         """
-        dingxiang_search_key的子调用,爬取检索结果
+        Sub-call of dingxiang_search_key for crawling search results / dingxiang_search_key的子调用,爬取检索结果
             
         Returns:
-            list:爬取结果 [{},{},{},{}]
+            Crawled results / 爬取结果
         """
         print(f"执行{type}爬取任务started at: {time.strftime('%X')}")
         content = []
@@ -289,16 +280,16 @@ class MedicalCrawlerService( ):
     
     async def dingxiang_content(self,url,type):
         """
-        爬取丁香园某临床决策或药品具体内容
-        
+        Scrape specific content from Dingxiangyuan (a medical platform), either clinical decision support or drug information.
+
         Args:
-            url:链接
-            type:链接类型
-                drug:药品
-                case:临床决策
-            
+            url: The target URL  
+            type: Type of the link  
+                drug: Drug information  
+                case: Clinical decision support  
+
         Returns:
-            string:爬取结果
+            string: The scraped result  
         """
         extracted_content = {}
         try:
@@ -368,22 +359,23 @@ class MedicalCrawlerService( ):
         return:[]
         
         '''
-        system_prompt =f"""
-        用户病例：
+        system_prompt = f"""
+        Patient Medical Record:
         {medical_record}
-        链接集合：
+        Link Collection:
         {content}
-        链接筛选、提取任务:给你一段患者病例，以及检索到的医学{args}链接集合，已经以json的格式给出。
-        结合患者症状和身份（男、女、幼儿等），从集合种提取出与患者病症最相关的3种疾病的链接，只给出链接，无需说原因，不做额外输出。
-        
-        请严格返回如下格式的列表（仅包含3个链接），不要做额外输出：
+        Link Filtering and Extraction Task: Given a patient's medical record and a retrieved collection of medical {args} links (provided in JSON format), 
+        select the 3 most relevant disease links based on the patient's symptoms and demographic information (e.g., male, female, child, etc.). 
+        Only provide the links—no explanations or additional output.
+
+        Strictly return a list in the following format (only 3 links, no extra output):
         [
-            {{"tittle": "示例1","content":"疾病简介", "link": "https://example1.com" }},
-            {{"tittle": "示例2","content":"疾病简介", "link": "https://example2.com" }}
+            {{"title": "Example1", "content": "Disease summary", "link": "https://example1.com" }},
+            {{"title": "Example2", "content": "Disease summary", "link": "https://example2.com" }}
         ]
         """
-        print(f"执行{args}选取任务started at: {time.strftime('%X')}")
-        # 构建消息
+        print(f"Executing {args} selection task started at: {time.strftime('%X')}")
+        # Construct the message
         messages = [{"role": "user", "content": user_message }]
 
         # # 添加病例信息（如果有）

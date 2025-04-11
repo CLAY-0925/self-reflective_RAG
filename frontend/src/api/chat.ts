@@ -20,7 +20,7 @@ export const chatService = {
 
     const userId = authService.getUserId();
     if (!userId || !sessionId) {
-      throw new Error('用户ID或会话ID不存在');
+      throw new Error('User ID or session ID does not exist');
     }
 
     const wsUrl = WEBSOCKET_API.CHAT(sessionId, userId);
@@ -33,7 +33,7 @@ export const chatService = {
         const data = JSON.parse(event.data);
         onMessage(data);
       } catch (error) {
-        console.error('解析WebSocket消息失败:', error);
+        console.error('Failed to parse WebSocket message:', error);
       }
     };
 
@@ -58,7 +58,7 @@ export const chatService = {
       });
       return response.data;
     } catch (error) {
-      console.error('创建会话失败:', error);
+      console.error('Failed to create session:', error);
       throw error;
     }
   },
@@ -70,7 +70,7 @@ export const chatService = {
       const response = await axios.get(SESSION_API.GET_USER_SESSIONS(userId));
       return response.data;
     } catch (error) {
-      console.error('获取会话列表失败:', error);
+      console.error('Failed to get sessions:', error);
       throw error;
     }
   },
@@ -81,7 +81,7 @@ export const chatService = {
       const response = await axios.get(SESSION_API.GET_MESSAGES(sessionId));
       return response.data;
     } catch (error) {
-      console.error('获取消息历史失败:', error);
+      console.error('Failed to get message history:', error);
       throw error;
     }
   },
@@ -92,7 +92,7 @@ export const chatService = {
       const response = await axios.delete(SESSION_API.CLEAR_MESSAGES(sessionId));
       return response.data;
     } catch (error) {
-      console.error('清空会话消息失败:', error);
+      console.error('Failed to clear session messages:', error);
       throw error;
     }
   },
@@ -100,7 +100,7 @@ export const chatService = {
   // 发送消息 - 直接通过WebSocket发送
   sendMessage: (message: string, options: AIOptions) => {
     if (!websocket || websocket.readyState !== WebSocket.OPEN) {
-      throw new Error('WebSocket未连接');
+      throw new Error('WebSocket is not connected');
     }
 
     const messageData = { message };
@@ -113,7 +113,7 @@ export const chatService = {
       const response = await axios.get(MEDICAL_RECORD_API.GET(sessionId));
       return response.data;
     } catch (error) {
-      console.error('获取病例记录失败:', error);
+      console.error('Failed to get medical record:', error);
       throw error;
     }
   },
@@ -127,7 +127,7 @@ export const chatService = {
       });
       return response.data;
     } catch (error) {
-      console.error('更新医疗记录失败:', error);
+      console.error('Failed to update medical record:', error);
       throw error;
     }
   },
@@ -138,7 +138,7 @@ export const chatService = {
       const response = await axios.get(USER_FOCUS_API.GET(sessionId));
       return response.data;
     } catch (error) {
-      console.error('获取用户关注问题失败:', error);
+      console.error('Failed to get user focus points:', error);
       throw error;
     }
   }

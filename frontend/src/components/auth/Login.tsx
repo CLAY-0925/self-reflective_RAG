@@ -9,7 +9,7 @@ const Login: React.FC = () => {
   
   const handleLogin = async (values: { username: string }) => {
     if (!values.username.trim()) {
-      setUserError('请输入用户名');
+      setUserError('Please enter a username');
       return;
     }
     
@@ -22,10 +22,10 @@ const Login: React.FC = () => {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-2">
-            AI医学知识聊天机器人
+            AI Medical Knowledge Chatbot
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            智能医疗问诊，专业知识助手
+            Intelligent medical consultation, professional knowledge assistant
           </p>
         </div>
         
@@ -33,7 +33,7 @@ const Login: React.FC = () => {
           className="w-full shadow-md dark:bg-gray-800 dark:border-gray-700" 
           bordered={false}
         >
-          <div className="text-xl font-medium text-center mb-6">用户登录</div>
+          <div className="text-xl font-medium text-center mb-6">User Login</div>
           
           <Form
             name="login"
@@ -45,18 +45,18 @@ const Login: React.FC = () => {
               name="username"
               validateStatus={userError ? 'error' : ''}
               help={userError}
-              rules={[{ required: true, message: '请输入您的用户名' }]}
+              rules={[{ required: true, message: 'Please enter your username' }]}
             >
               <Input 
                 prefix={<UserOutlined className="text-gray-400" />} 
-                placeholder="用户名" 
+                placeholder="Username" 
                 size="large" 
               />
             </Form.Item>
             
             <Form.Item>
               <div className="text-sm text-gray-500 mb-4">
-                请输入用户名登录，无需密码，新用户将自动注册
+                Please enter your username to login, no password required, new users will be automatically registered
               </div>
               <Button 
                 type="primary" 
@@ -65,7 +65,7 @@ const Login: React.FC = () => {
                 size="large"
                 loading={isLoading}
               >
-                登录
+                Login
               </Button>
             </Form.Item>
           </Form>
@@ -81,14 +81,14 @@ const Login: React.FC = () => {
           
           {isLoading && (
             <div className="flex justify-center mt-4">
-              <Spin tip="处理中..." />
+              <Spin tip="Processing..." />
             </div>
           )}
         </Card>
         
         <div className="mt-8 text-center text-gray-500 text-sm">
-          <p>© 2023 AI医学知识聊天机器人. 保留所有权利.</p>
-          <p className="mt-2">本系统仅供参考，不构成医疗建议</p>
+          <p>© 2023 AI Medical Knowledge Chatbot. All rights reserved.</p>
+          <p className="mt-2">This system is for reference only and does not constitute medical advice</p>
         </div>
       </div>
     </div>

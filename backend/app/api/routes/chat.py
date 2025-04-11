@@ -243,10 +243,10 @@ async def process_chat_message(websocket: WebSocket, session_id: int, user_id: i
         while not (intent_done.is_set() and medical_info_done.is_set() and medical_record_done.is_set() and focus_done.is_set()):
             # 构建进度信息
             progress = {
-                "intent": "分析中..." if not intent_done.is_set() else "已完成",
-                "medical_info": "分析中..." if not medical_info_done.is_set() else "已完成",
-                "medical_record": "分析中..." if not medical_record_done.is_set() else "已完成",
-                "focus": "分析中..." if not focus_done.is_set() else "已完成"
+                "intent": "analysing..." if not intent_done.is_set() else "Done",
+                "medical_info": "analysing..." if not medical_info_done.is_set() else "Done",
+                "medical_record": "analysing..." if not medical_record_done.is_set() else "Done",
+                "focus": "analysing..." if not focus_done.is_set() else "Done"
             }
             
             # 添加已完成的结果
@@ -273,10 +273,10 @@ async def process_chat_message(websocket: WebSocket, session_id: int, user_id: i
         
         # 发送最终进度更新，确保所有模型状态都显示为"已完成"
         final_progress = {
-            "intent": "已完成",
-            "medical_info": "已完成",
-            "medical_record": "已完成",
-            "focus": "已完成",
+            "intent": "Done",
+            "medical_info": "Done",
+            "medical_record": "Done",
+            "focus": "Done",
             "intent_result": intent_result,
             "medical_info_result": medical_info_result,
             "medical_record_result": medical_record_result,
@@ -289,7 +289,7 @@ async def process_chat_message(websocket: WebSocket, session_id: int, user_id: i
         })
         
         # 所有Agent任务已完成
-        logger.info("四个模型都调用完毕")
+        logger.info("four Agents all Done")
 
         # 存储Agent结果到缓存
         shared_cache.set_agent_result(session_id, user_msg.id, "intent_agent", intent_result)
@@ -338,7 +338,7 @@ async def process_chat_message(websocket: WebSocket, session_id: int, user_id: i
         # 使用响应Agent生成最终回复
         await websocket.send_json({
             "type": "status",
-            "message": "正在生成最终回复..."
+            "message": "generating..."
         })
         
         response_result = await response_agent.process(
@@ -352,7 +352,7 @@ async def process_chat_message(websocket: WebSocket, session_id: int, user_id: i
         )
         
         # 更新聊天消息中的关键信息
-        user_msg.intent = intent_result.get("intent", "未知意图")
+        user_msg.intent = intent_result.get("intent", "unkown Intent")
         keywords = medical_info_result.get("keywords", [])
         user_msg.keywords = ",".join(keywords) if keywords else ""
         db.commit()
@@ -361,7 +361,7 @@ async def process_chat_message(websocket: WebSocket, session_id: int, user_id: i
         assistant_message = ChatMessage(
             session_id=session_id,
             role="assistant",
-            content=response_result.get("response", "抱歉，我无法回答您的问题"),
+            content=response_result.get("response", "sorry, I can't answer your question"),
             follow_up_questions=", ".join(response_result.get("follow_up_questions", [])),
             medical_info=json.dumps(medical_info_result.get("raw_results", ""), ensure_ascii=False) if isinstance(medical_info_result.get("raw_results"), (dict, list)) else str(medical_info_result.get("raw_results", ""))
         )
@@ -503,7 +503,7 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
         intent_result, medical_info_result, medical_record_result, focus_result = await asyncio.gather(
             intent_task, medical_info_task, medical_record_task, focus_task
         )
-        logger.info("四个模型都调用完毕")
+        logger.info("four Agent all done")
         
         # 存储Agent结果到缓存
         shared_cache.set_agent_result(request.session_id, user_message.id, "intent_agent", intent_result)
@@ -561,7 +561,7 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
         )
         
         # 更新聊天消息中的关键信息
-        user_message.intent = intent_result.get("intent", "未知意图")
+        user_message.intent = intent_result.get("intent", "unknown Intent")
         keywords = medical_info_result.get("keywords", [])
         user_message.keywords = ",".join(keywords) if keywords else ""
         db.commit()
@@ -570,7 +570,7 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
         assistant_message = ChatMessage(
             session_id=request.session_id,
             role="assistant",
-            content=response_result.get("response", "抱歉，我无法回答您的问题"),
+            content=response_result.get("response", "Sorry,I can't answer your question"),
             follow_up_questions=", ".join(response_result.get("follow_up_questions", [])),
             medical_info=json.dumps(medical_info_result.get("raw_results", ""), ensure_ascii=False) if isinstance(medical_info_result.get("raw_results"), (dict, list)) else str(medical_info_result.get("raw_results", ""))
         )

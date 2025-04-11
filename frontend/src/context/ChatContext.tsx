@@ -55,29 +55,29 @@ const initialAIOptions: AIOptions = {
 };
 
 const initialAIStatus: AIStatus = {
-  intent: '分析中...',
-  medical_info: '分析中...',
-  medical_record: '分析中...'
+  intent: 'Analyzing...',
+  medical_info: 'Analyzing...',
+  medical_record: 'Analyzing...'
 };
 
 // 默认的空医疗记录结构
 const defaultMedicalRecord: MedicalRecord = {
   confirmed_info: {
-    基本信息: '',
-    主诉: '',
-    症状描述: '',
-    现病史: '',
-    既往史: '',
-    用药情况: '',
-    家族史: ''
+    basic_info: '',
+    chief_complaint: '',
+    symptoms: '',
+    present_illness: '',
+    past_history: '',
+    medications: '',
+    family_history: ''
   },
   pending_clues: {
-    待确认症状: '',
-    需澄清细节: ''
+    unconfirmed_symptoms: '',
+    details_to_clarify: ''
   },
   stage: {
-    信息收集: 0,
-    鉴别诊断: 0
+    information_gathering: 0,
+    differential_diagnosis: 0
   }
 };
 
@@ -150,7 +150,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const data = await chatService.getSessions();
       setSessions(data);
     } catch (error) {
-      setError('加载会话失败');
+      setError('Failed to load sessions');
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -221,7 +221,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setFollowUpQuestions([]);
       }
     } catch (error) {
-      setError('加载聊天记录失败');
+      setError('Failed to load messages');
       console.error(error);
       setFollowUpQuestions([]);
     } finally {
@@ -248,8 +248,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           record.confirmed_info && 
           record.pending_clues && 
           record.stage && 
-          (typeof record.stage.信息收集 === 'number' || typeof record.stage.信息收集 === 'string') &&
-          (typeof record.stage.鉴别诊断 === 'number' || typeof record.stage.鉴别诊断 === 'string');
+          (typeof record.stage.information_gathering === 'number' || typeof record.stage.information_gathering === 'string') &&
+          (typeof record.stage.differential_diagnosis === 'number' || typeof record.stage.differential_diagnosis === 'string');
         
         // 只有当记录有效时才更新
         if (isValidRecord) {
@@ -322,8 +322,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               record.confirmed_info && 
               record.pending_clues && 
               record.stage && 
-              (typeof record.stage.信息收集 === 'number' || typeof record.stage.信息收集 === 'string') &&
-              (typeof record.stage.鉴别诊断 === 'number' || typeof record.stage.鉴别诊断 === 'string');
+              (typeof record.stage.information_gathering === 'number' || typeof record.stage.information_gathering === 'string') &&
+              (typeof record.stage.differential_diagnosis === 'number' || typeof record.stage.differential_diagnosis === 'string');
             
             // 只有当记录有效时才更新，否则保留当前记录
             if (isValidRecord) {
@@ -376,8 +376,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             record.confirmed_info && 
             record.pending_clues && 
             record.stage && 
-            (typeof record.stage.信息收集 === 'number' || typeof record.stage.信息收集 === 'string') &&
-            (typeof record.stage.鉴别诊断 === 'number' || typeof record.stage.鉴别诊断 === 'string');
+            (typeof record.stage.information_gathering === 'number' || typeof record.stage.information_gathering === 'string') &&
+            (typeof record.stage.differential_diagnosis === 'number' || typeof record.stage.differential_diagnosis === 'string');
           
           // 只有当记录有效时才更新，否则保留当前记录
           if (isValidRecord) {
@@ -443,7 +443,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setMedicalRecord(null);
       setSearchResults([]);
     } catch (error) {
-      setError('创建会话失败');
+      setError('Failed to create session');
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -488,7 +488,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       await chatService.updateMedicalRecord(currentSession.id, record);
     } catch (error) {
-      setError('更新医疗记录失败');
+      setError('Failed to update medical record');
       console.error(error);
     }
   };
@@ -500,7 +500,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setMessages([]);
       }
     } catch (error) {
-      setError('清空消息失败');
+      setError('Failed to clear messages');
       console.error(error);
     }
   };

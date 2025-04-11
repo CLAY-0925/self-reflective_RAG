@@ -1,25 +1,25 @@
 """
-响应生成Agent (Agent4)
-负责结合病例信息、爬取到的医疗知识信息，针对患者问题给出最终回复
+Response Generation Agent (Agent4)
+Responsible for combining medical record information and crawled medical knowledge to provide final responses to patient questions
 """
 from typing import Dict, Any, List
 import logging
 from app.api.agents.base_agent import BaseAgent
 from app.services.dashscope_service import DashscopeService
-
-# 配置日志
+import json
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class ResponseAgent(BaseAgent):
     """
-    响应生成Agent
-    负责生成最终回复
+    Response Generation Agent
+    Responsible for generating final responses
     """
     
     def __init__(self):
         """
-        初始化响应Agent
+        Initialize Response Agent
         """
         super().__init__("response_agent")
         self.llm_service = DashscopeService()
@@ -28,36 +28,36 @@ class ResponseAgent(BaseAgent):
                      medical_record: str = "", intent_result: Dict = None, medical_info_result: Dict = None, 
                      **kwargs) -> Dict[str, Any]:
         """
-        处理用户消息，生成最终回复
+        Process user message and generate final response
         
         Args:
-            session_id: 会话ID
-            message_id: 消息ID
-            user_message: 用户消息内容
-            chat_history: 聊天历史
-            medical_record: 医疗记录
-            intent_result: 意图Agent的处理结果
-            medical_info_result: 医疗信息Agent的处理结果
-            **kwargs: 其他参数
+            session_id: Session ID
+            message_id: Message ID
+            user_message: User message content
+            chat_history: Chat history
+            medical_record: Medical record
+            intent_result: Intent Agent processing result
+            medical_info_result: Medical Info Agent processing result
+            **kwargs: Other parameters
             
         Returns:
-            处理结果，包含回复内容和推荐问题
+            Processing result containing response content and recommended questions
         """
         try:
-            # 获取意图和联想问题
-            intent = "未知意图"
+            # Get intent and follow-up questions
+            intent = "Unknown intent"
             follow_up_questions = []
             
             if intent_result:
-                intent = intent_result.get("intent", "未知意图")
+                intent = intent_result.get("intent", "Unknown intent")
                 follow_up_questions = intent_result.get("follow_up_questions", [])
             
-            # 获取医疗信息
+            # Get medical information
             medical_info = ""
             if medical_info_result:
-                medical_info = medical_info_result.get("medical_info", "")
+                medical_info = medical_info_result
             
-            # 生成回复
+            # Generate response
             response_content = await self._generate_response(
                 user_message, 
                 chat_history, 
@@ -72,77 +72,204 @@ class ResponseAgent(BaseAgent):
             }
                 
         except Exception as e:
-            logger.error(f"响应Agent处理异常: {str(e)}")
+            logger.error(f"Response Agent processing error: {str(e)}")
             return {
-                "response": "抱歉，我暂时无法回答您的问题。请问您能重新描述一下您的问题吗？",
+                "response": "I'm sorry, I cannot answer your question at the moment. Could you please rephrase your question?",
                 "follow_up_questions": []
             }
     
     async def _generate_response(self, user_message: str, chat_history: List[Dict[str, str]], 
                                 medical_record: str, intent: str, medical_info: str) -> str:
         """
-        生成最终回复
+        Generate final response
         
         Args:
-            user_message: 用户消息
-            chat_history: 聊天历史
-            medical_record: 医疗记录
-            intent: 用户意图
-            medical_info: 医疗信息
+            user_message: User message
+            chat_history: Chat history
+            medical_record: Medical record
+            intent: User intent
+            medical_info: Medical information
             
         Returns:
-            生成的回复内容
+            Generated response content
         """
-        # 构建提示词
-        system_prompt = """
-        你是一个专业的医学顾问，你的回答需要基于以下信息来为患者提供清晰、准确的医疗建议：
-
-        1. 患者的问题和聊天历史
-        2. 患者的医疗记录
-        3. 互联网搜索得到的相关医疗知识
-
-        请遵循以下原则：
-        1. 回答要专业、准确且易于理解
-        2. 态度友善、耐心，使用礼貌的语言
-        3. 不要自行诊断，而是提供教育性的医疗信息
-        4. 必要时建议患者咨询医生
-        5. 回答要基于搜索到的权威医疗知识，但请用自己的话语总结
-        6. 不要直接复制粘贴搜索结果，而是整合信息提供连贯的回答
-        7. 回答应该针对用户当前的问题，不要偏离主题
-        
-        请不要在回复中提及你是基于什么信息回答的，直接给出专业的回答即可。
-        """
-        
-        # 构建消息
-        messages = []
-        
-        # 添加聊天历史
-        if chat_history:
-            messages.extend(chat_history[-5:])  # 使用最近5条聊天记录
-            
-        # 添加当前消息
-        messages.append({"role": "user", "content": user_message})
-        
-        # 补充附加信息到提示词中
-        if intent and intent != "未知意图":
-            system_prompt += f"\n\n用户当前意图：{intent}"
+        # Build prompt
+        system_prompt = ""
+        if intent and intent != "Unknown intent":
+            system_prompt += f"\n\nCurrent user intent: {intent}"
             
         if medical_record:
-            system_prompt += f"\n\n患者病例记录：\n{medical_record}"
+            system_prompt += f"\n\nPatient medical record:\n{medical_record}"
             
         if medical_info:
-            system_prompt += f"\n\n相关医疗知识：\n{medical_info}"
+            print(f"Medical knowledge used for final response:\n{medical_info},type:{type(medical_info)}")
+            medical_info = self.process_medical_data(medical_info)
+
+            system_prompt += f"\n\nRelevant medical knowledge:\n{medical_info}"
+            
+        system_prompt +="""
+        You are a professional medical consultant. Your responses should provide clear and accurate medical advice based on the following information:
+
+        **Available Information:**
+        1. Patient's questions and chat history  
+        2. Patient's medical records (e.g., lab tests, medical history)  
+        3. Relevant medical knowledge from internet search, including disease and medication information
+        4. Patient's intent (consultation/diagnosis/medication guidance, etc.)  
+
+        **Response Requirements:**
+
+        1. Diagnosis should start with the most common and mild possibilities ("common conditions first" principle)
+        2. Only consider serious conditions when there are clear indications
+        3. Avoid directly mentioning serious disease names unless symptoms strongly match
+        4. Follow medical principles, maintain professionalism without causing excessive anxiety
+
+        **Thinking Process (Chain-of-Thought Reasoning):**  
+        Please think in the following logical order:  
+
+        ### **1. Information Gathering**  
+        - **Chief Complaint**: Summarize the patient's core issue (e.g., "cough for 3 days with yellow sputum").  
+        - **Key Clues**: List known information (e.g., "normal temperature, no chest pain").  
+        - **Missing Information**: Check `pending_clues` to identify needed key information (e.g., "smoking history? blood in sputum?").  
+
+        ### **2. Initial Analysis (Hypothesis Generation)**  
+        - **Possible Causes**: Based on available information, list 2-3 most likely diagnoses, starting with common, mild causes (e.g., "allergic rhinitis, sinusitis"). Only consider other possibilities when there are clear warning signs.    
+
+        ### **3. Recommendations (Action Plan)**  
+        - **Medication Advice** (Read relevant medical knowledge about medications, if suitable, recommend medication usage):  
+        - Medication name.  
+        - Usage method (e.g., "500mg, every 8 hours, 7-day course").  
+        - Precautions (e.g., "may cause gastrointestinal reactions, take after meals").
+        - **Test Recommendations** (if needed):  
+        - Test items  
+        - Test purpose 
+        - **Diagnostic Suggestions** (only when information completeness ≥60%):  
+        - Give most likely diagnosis in 1 sentence.  
+        - Explain reasons.  
+        - **Information to Confirm**:  
+        - Select 1-2 most critical questions from `pending_clues` (e.g., "allergy history? symptoms worse at night?").  
+
+        ### **4. Safety Reminders**  
+        - Must include the following reminders:  
+        - "If [dangerous symptoms, such as difficulty breathing, high fever] occur, seek medical attention immediately."  
+        - "This advice cannot replace face-to-face medical consultation, please follow clinical doctor's judgment."  
+
+        **Final response format example:**  
+        1. **Understanding Your Symptoms**: Your main issue is cough with yellow sputum, no fever.  
+        2. **Possible Causes**:  
+        - Bacterial bronchitis  
+        - Allergic rhinitis with secondary cough (need to confirm if there's nasal itching/sneezing)  
+        3. **Recommendations**:  
+        - May try amoxicillin (500mg, 3 times daily), observe for 3 days.
+        - Recommend complete blood count to assess infection.
+        - Need to confirm: smoking history? blood in sputum?  
+        4. **Reminder**: If chest pain or shortness of breath occurs, seek emergency care immediately.  
+        """
+        # Build messages
+        messages = []
         
-        # 调用LLM
+        # Add chat history
+        if chat_history:
+            messages.extend(chat_history[-5:])  # Use last 5 chat records
+            
+        # Add current message
+        messages.append({"role": "user", "content": user_message})
+        
+        # Add additional information to prompt
+        
+        # Call LLM
         response = await self.llm_service.chat_with_prompt(messages, system_prompt)
-        print('以下是response：'+ '\n')
+        print('Response below:'+ '\n')
         print(response)
         if not response.get("success", False):
-            logger.error(f"响应生成LLM调用失败: {response.get('error')}")
-            return "抱歉，我暂时无法回答您的问题。请问您能重新描述一下您的问题吗？"
+            logger.error(f"Response generation LLM call failed: {response.get('error')}")
+            return "I'm sorry, I cannot answer your question at the moment. Could you please rephrase your question?"
         
-        # 获取LLM返回的结果
+        # Get LLM response result
 
         result = response["response"]
-        
+        prompt = """
+        This is the chat history
+        {chat_history}
+        This is the LLM generated response, think about whether it's reasonable
+        {result}
+        Please provide your response
+        Format as follows, only provide your optimized response:
+        {{new response content}}
+"""
         return result 
+    
+
+    def process_medical_data(self, json_data):
+        """
+        Process medical data by combining content and maintaining source information.
+        
+        Args:
+            json_data (dict): Input JSON data containing medical information
+            
+        Returns:
+            list: List of dictionaries containing processed data
+        """
+        if not isinstance(json_data, dict):
+            raise ValueError("Input must be a dictionary")
+
+        processed_results = []
+        
+        for result in json_data.get('raw_results', []):
+            try:
+                # Check if source exists and contains title
+                if not isinstance(result.get('source'), dict):
+                    continue
+                    
+                title = result.get('source', {}).get('title', '')
+                if not title:  # Skip if title is empty
+                    continue
+
+                entry = {'title': title}
+                content = result.get('content', [])
+
+                # Process different types of content
+                if isinstance(content, list):
+                    content_parts = []
+                    for content_item in content:
+                        if isinstance(content_item, dict):
+                            for key, value in content_item.items():
+                                if value:  # Only add non-empty values
+                                    content_parts.append(f"{key}: {value}")
+                    entry['content'] = ';'.join(content_parts)
+                    
+                elif isinstance(content, dict):
+                    content_parts = []
+                    
+                    def process_nested_dict(d):
+                        if not isinstance(d, dict):
+                            return
+                        
+                        for key, value in d.items():
+                            if isinstance(value, dict):
+                                if 'content' in value and value['content']:  # Ensure content is not empty
+                                    title = key.split(':')[-1].strip()
+                                    content = value['content'].strip()
+                                    content_parts.append(f"{title}{content}")
+                                else:
+                                    process_nested_dict(value)
+                    
+                    process_nested_dict(content)
+                    entry['content'] = ''.join(content_parts)
+                
+                # Only add entries with content
+                if entry.get('content'):
+                    processed_results.append(entry)
+                    
+            except Exception as e:
+                print(f"Warning: Skipping entry due to error: {str(e)}")
+                continue     
+
+        str =  ""
+        for i, item in enumerate(processed_results, 1):
+            str += f"Entry #{i}\n"
+            str += f"Title: {item['title']}\n"
+            str += f"Content: {item['content']}\n"
+            str += "-" * 50 + "\n"
+
+
+        return str

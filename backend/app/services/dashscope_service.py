@@ -1,4 +1,5 @@
 """
+DashScope API Service
 通义API服务
 """
 import os
@@ -8,44 +9,45 @@ from dotenv import load_dotenv
 import dashscope
 import asyncio
 
-# 加载环境变量
+# Load environment variables / 加载环境变量
 load_dotenv()
 
-# 获取API密钥
+# Get API keys / 获取API密钥
 API_KEY = os.getenv('DASHSCOPE_API_KEY')
 FAST_MODEL = os.getenv('FAST_MODEL')
 LARGE_MODEL = os.getenv('LARGE_MODEL')
 
 class DashscopeService:
     """
+    DashScope API Service
     通义千问API服务
     """
     
     def __init__(self, use_fast_model=False):
         """
-        初始化服务
+        Initialize service / 初始化服务
         
         Args:
-            use_fast_model: 是否使用更快的模型
+            use_fast_model: Whether to use faster model / 是否使用更快的模型
         """
         self.api_key = API_KEY
-        print('初始化一次')
+        print('Initializing service')
         self.model = FAST_MODEL if use_fast_model else LARGE_MODEL
 
         
     async def chat_completion(self, messages: List[Dict[str, str]], temperature: float = 0.7) -> Dict[str, Any]:
         """
-        发送聊天请求到通义千问API
+        Send chat request to DashScope API / 发送聊天请求到通义千问API
         
         Args:
-            messages: 聊天消息列表，格式为[{"role": "user", "content": "你好"}, {"role": "assistant", "content": "你好！有什么我可以帮助你的吗？"}]
-            temperature: 温度参数，控制生成文本的随机性
+            messages: Chat message list, format: [{"role": "user", "content": "Hello"}, {"role": "assistant", "content": "Hello! How can I help you?"}] / 聊天消息列表
+            temperature: Temperature parameter, controls text generation randomness / 温度参数，控制生成文本的随机性
             
         Returns:
-            API响应结果
+            API response result / API响应结果
         """
         try:
-            # 使用线程池执行阻塞的 API 调用
+            # Use thread pool to execute blocking API calls / 使用线程池执行阻塞的 API 调用
             loop = asyncio.get_event_loop()
             response = await loop.run_in_executor(
                 None,
@@ -67,38 +69,35 @@ class DashscopeService:
             else:
                 return {
                     'success': False,
-                    'error': f"API错误: {response.code}, {response.message}"
+                    'error': f"API error: {response.code}, {response.message}"
                 }
         except Exception as e:
             return {
                 'success': False,
-                'error': f"调用通义API异常: {str(e)}"
+                'error': f"DashScope API call exception: {str(e)}"
             }
         
-
     
-            
     async def chat_with_prompt(self, messages: List[Dict[str, str]], system_prompt: str, temperature: float = 0.7) -> Dict[str, Any]:
         """
-        使用系统提示发送聊天请求
+        Send chat request with system prompt / 使用系统提示发送聊天请求
         
         Args:
-            messages: 聊天消息列表
-            system_prompt: 系统提示词
-            temperature: 温度参数
+            messages: Chat message list / 聊天消息列表
+            system_prompt: System prompt / 系统提示词
+            temperature: Temperature parameter / 温度参数
             
         Returns:
-            API响应结果
+            API response result / API响应结果
         """
         try:
-        # 在messages开头添加系统提示
+            # Add system prompt at the beginning of messages / 在messages开头添加系统提示
             full_messages = [{"role": "system", "content": system_prompt}] + messages
-
             
             return await self.chat_completion(full_messages, temperature) 
         
         except Exception as e:
             return {
                 'success': False,
-                'error': f"设置的prompt聊天请求发送失败: {system_prompt},{e}"
+                'error': f"Failed to send chat request with prompt: {system_prompt},{e}"
             }

@@ -8,7 +8,7 @@ export const authService = {
       const response = await axios.post(USER_API.LOGIN, { username });
       return response.data;
     } catch (error) {
-      console.error('注册失败:', error);
+      console.error('Registration failed:', error);
       throw error;
     }
   },
@@ -23,7 +23,7 @@ export const authService = {
       }
       return response.data;
     } catch (error) {
-      console.error('登录失败:', error);
+      console.error('Login failed:', error);
       throw error;
     }
   },

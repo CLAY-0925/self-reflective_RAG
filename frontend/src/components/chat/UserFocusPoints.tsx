@@ -14,7 +14,7 @@ const UserFocusPoints: React.FC = () => {
         title={
           <div className="flex items-center">
             <BulbOutlined className="mr-3 text-amber-400" style={{ fontSize: '18px' }} />
-            <span className="text-gray-700 dark:text-gray-300 font-medium">关注点</span>
+            <span className="text-gray-700 dark:text-gray-300 font-medium">Focus Points</span>
           </div>
         }
         className="mb-4 shadow-sm"
@@ -25,7 +25,7 @@ const UserFocusPoints: React.FC = () => {
       >
         <Empty 
           description={
-            <span className="text-gray-500 text-sm">暂无关注点</span>
+            <span className="text-gray-500 text-sm">No focus points yet</span>
           } 
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           className="my-3" 
@@ -40,7 +40,7 @@ const UserFocusPoints: React.FC = () => {
       title={
         <div className="flex items-center">
           <BulbOutlined className="mr-3 text-amber-400" style={{ fontSize: '18px' }} />
-          <span className="text-gray-700 dark:text-gray-300 font-medium">关注点</span>
+          <span className="text-gray-700 dark:text-gray-300 font-medium">Focus Points</span>
         </div>
       }
       className="mb-4 shadow-sm"

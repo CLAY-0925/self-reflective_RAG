@@ -48,8 +48,8 @@ Base = declarative_base()
 # 获取数据库会话的依赖函数
 def get_db():
     """
-    获取数据库会话的依赖函数
-    :return: 数据库会话
+    Get database session dependency function
+    :return: Database session object
     """
     db = SessionLocal()
     try:

@@ -1,4 +1,5 @@
 """
+Shared Memory Cache Service
 共享内存缓存服务，用于Agent之间共享数据
 """
 import threading
@@ -10,13 +11,15 @@ from sqlalchemy.orm import Session
 
 from app.models.chat import MedicalRecord, ChatMessage, UserFocus
 
-# 配置日志
+# Configure logging / 配置日志
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class SharedCache:
     """
+    Shared Memory Cache Service Singleton
     共享内存缓存服务单例
+    Used for sharing chat history and other data between Agents
     用于Agent之间共享聊天历史和其他数据
     """
     _instance = None
@@ -26,64 +29,64 @@ class SharedCache:
         with cls._lock:
             if cls._instance is None:
                 cls._instance = super(SharedCache, cls).__new__(cls)
-                # 初始化共享内存数据结构
-                cls._instance.chat_histories = {}  # session_id -> messages列表
-                cls._instance.medical_records = {}  # session_id -> 病例信息
+                # Initialize shared memory data structures / 初始化共享内存数据结构
+                cls._instance.chat_histories = {}  # session_id -> messages list
+                cls._instance.medical_records = {}  # session_id -> medical record
                 cls._instance.agent_results = {}  # session_id -> {message_id -> {agent_results}}
-                cls._instance.cache_timestamps = {}  # 缓存时间戳记录
-                cls._instance.user_focus = {}  # session_id -> 用户关注点字典
+                cls._instance.cache_timestamps = {}  # Cache timestamp records
+                cls._instance.user_focus = {}  # session_id -> user focus dictionary
         return cls._instance
     
     def get_chat_history(self, session_id: int, db: Optional[Session] = None, limit: int = 10) -> List[Dict[str, str]]:
         """
-        获取指定会话的聊天历史
+        Get chat history for specified session / 获取指定会话的聊天历史
         
         Args:
-            session_id: 会话ID
-            db: 数据库会话，如果提供则在缓存未命中时查询数据库
-            limit: 限制返回的最近消息数量
+            session_id: Session ID / 会话ID
+            db: Database session, if provided queries database on cache miss / 数据库会话，如果提供则在缓存未命中时查询数据库
+            limit: Limit number of recent messages to return / 限制返回的最近消息数量
             
         Returns:
-            聊天历史消息列表
+            List of chat history messages / 聊天历史消息列表
         """
         try:
-            # 检查缓存是否存在该会话的历史
+            # Check if cache has history for this session / 检查缓存是否存在该会话的历史
             if session_id not in self.chat_histories:
-                # 缓存未命中，如果提供数据库会话则从数据库加载
+                # Cache miss, load from database if provided / 缓存未命中，如果提供数据库会话则从数据库加载
                 if db:
-                    logger.info(f"聊天历史缓存未命中，从数据库加载: session_id={session_id}")
-                    # 从数据库查询历史消息
+                    logger.info(f"Chat history cache miss, loading from database: session_id={session_id}")
+                    # Query history messages from database / 从数据库查询历史消息
                     messages = db.query(ChatMessage).filter(
                         ChatMessage.session_id == session_id
                     ).order_by(ChatMessage.created_at).all()
                     
-                    # 格式化消息并加载到缓存
+                    # Format messages and load into cache / 格式化消息并加载到缓存
                     history = [{"role": msg.role, "content": msg.content} for msg in messages]
                     self.chat_histories[session_id] = history
                     
-                    # 更新缓存时间戳
+                    # Update cache timestamp / 更新缓存时间戳
                     self._update_cache_timestamp(f"chat_history:{session_id}")
                     
-                    logger.info(f"已从数据库加载聊天历史: session_id={session_id}, 消息数量={len(history)}")
+                    logger.info(f"Loaded chat history from database: session_id={session_id}, message count={len(history)}")
                 else:
-                    # 没有提供数据库会话，返回空列表
+                    # No database session provided, return empty list / 没有提供数据库会话，返回空列表
                     return []
             
-            # 返回最近的limit条消息
+            # Return most recent limit messages / 返回最近的limit条消息
             return self.chat_histories[session_id][-limit:]
         except Exception as e:
-            logger.error(f"获取聊天历史异常: {str(e)}")
+            logger.error(f"Error getting chat history: {str(e)}")
             logger.exception(e)
             return []
     
     def add_message_to_history(self, session_id: int, role: str, content: str) -> None:
         """
-        向聊天历史添加新消息
+        Add new message to chat history / 向聊天历史添加新消息
         
         Args:
-            session_id: 会话ID
-            role: 角色（user或assistant）
-            content: 消息内容
+            session_id: Session ID / 会话ID
+            role: Role (user or assistant) / 角色（user或assistant）
+            content: Message content / 消息内容
         """
         try:
             if session_id not in self.chat_histories:
@@ -94,178 +97,179 @@ class SharedCache:
                 "content": content
             })
             
-            # 更新缓存时间戳
+            # Update cache timestamp / 更新缓存时间戳
             self._update_cache_timestamp(f"chat_history:{session_id}")
         except Exception as e:
-            logger.error(f"添加消息到历史异常: {str(e)}")
+            logger.error(f"Error adding message to history: {str(e)}")
     
     def get_medical_record(self, session_id: int, db: Optional[Session] = None) -> Any:
         """
-        获取指定会话的医疗记录，如果缓存未命中且提供了数据库会话，则从数据库加载
+        Get medical record for specified session, load from database if cache miss and database session provided / 获取指定会话的医疗记录，如果缓存未命中且提供了数据库会话，则从数据库加载
         
         Args:
-            session_id: 会话ID
-            db: 数据库会话，如果提供则在缓存未命中时查询数据库
+            session_id: Session ID / 会话ID
+            db: Database session, if provided queries database on cache miss / 数据库会话，如果提供则在缓存未命中时查询数据库
             
         Returns:
-            医疗记录内容，格式为字典或字符串
+            Medical record content, format as dictionary or string / 医疗记录内容，格式为字典或字符串
         """
         try:
-            # 检查缓存是否存在该会话的医疗记录
+            # Check if cache has medical record for this session / 检查缓存是否存在该会话的医疗记录
             if session_id not in self.medical_records or not self.medical_records[session_id]:
-                # 缓存未命中，如果提供数据库会话则从数据库加载
+                # Cache miss, load from database if provided / 缓存未命中，如果提供数据库会话则从数据库加载
                 if db:
-                    logger.info(f"医疗记录缓存未命中，从数据库加载: session_id={session_id}")
-                    # 从数据库查询医疗记录
+                    logger.info(f"Medical record cache miss, loading from database: session_id={session_id}")
+                    # Query medical record from database / 从数据库查询医疗记录
                     medical_record = db.query(MedicalRecord).filter(
                         MedicalRecord.session_id == session_id
                     ).first()
                     
                     if medical_record:
-                        # 加载到缓存
+                        # Load into cache / 加载到缓存
                         record_content = medical_record.record_content
                         self.medical_records[session_id] = record_content
                         
-                        # 更新缓存时间戳
+                        # Update cache timestamp / 更新缓存时间戳
                         self._update_cache_timestamp(f"medical_record:{session_id}")
                         
-                        logger.info(f"已从数据库加载医疗记录: session_id={session_id}")
+                        logger.info(f"Loaded medical record from database: session_id={session_id}")
                     else:
-                        # 数据库中也没有记录，返回空记录
-                        logger.info(f"数据库中不存在医疗记录: session_id={session_id}")
+                        # No record in database, return empty record / 数据库中也没有记录，返回空记录
+                        logger.info(f"No medical record in database: session_id={session_id}")
                         return {}
             
-            # 返回缓存中的记录
+            # Return record from cache / 返回缓存中的记录
             record = self.medical_records.get(session_id, "")
             
-            # 如果记录是JSON字符串，尝试解析为字典
+            # If record is JSON string, try to parse as dictionary / 如果记录是JSON字符串，尝试解析为字典
             if isinstance(record, str) and record.strip():
                 try:
                     parsed_record = json.loads(record)
                     return parsed_record
                 except json.JSONDecodeError:
-                    # 不是有效的JSON，直接返回原始字符串
+                    # Not valid JSON, return original string / 不是有效的JSON，直接返回原始字符串
                     return record
             
             return record if record else {}
         except Exception as e:
-            logger.error(f"获取医疗记录异常: {str(e)}")
+            logger.error(f"Error getting medical record: {str(e)}")
             logger.exception(e)
             return {}
     
     def update_medical_record(self, session_id: int, record_content: Any) -> None:
         """
-        更新医疗记录
+        Update medical record / 更新医疗记录
         
         Args:
-            session_id: 会话ID
-            record_content: 医疗记录内容
+            session_id: Session ID / 会话ID
+            record_content: Medical record content / 医疗记录内容
         """
         try:
-            # 如果是字典或列表，转换为JSON字符串
+            # If dictionary or list, convert to JSON string / 如果是字典或列表，转换为JSON字符串
             if isinstance(record_content, (dict, list)):
                 record_content = json.dumps(record_content, ensure_ascii=False)
                 
             self.medical_records[session_id] = record_content
-            print(f"更新医疗记录！！！！！session_id={session_id}, 内容类型={type(record_content)}")
+            print(f"Updated medical record!!!!! session_id={session_id}, content type={type(record_content)}")
             
-            # 更新缓存时间戳
+            # Update cache timestamp / 更新缓存时间戳
             self._update_cache_timestamp(f"medical_record:{session_id}")
         except Exception as e:
-            logger.error(f"更新医疗记录异常: {str(e)}")
+            logger.error(f"Error updating medical record: {str(e)}")
             logger.exception(e)
     
     def get_user_focus(self, session_id: int, db: Optional[Session] = None) -> Dict[str, List[List[int]]]:
         """
-        获取指定会话的用户关注点，如果缓存未命中且提供了数据库会话，则从数据库加载
+        Get user focus points for specified session, load from database if cache miss and database session provided / 获取指定会话的用户关注点，如果缓存未命中且提供了数据库会话，则从数据库加载
         
         Args:
-            session_id: 会话ID
-            db: 数据库会话，如果提供则在缓存未命中时查询数据库
+            session_id: Session ID / 会话ID
+            db: Database session, if provided queries database on cache miss / 数据库会话，如果提供则在缓存未命中时查询数据库
             
         Returns:
-            用户关注点字典
+            User focus points dictionary / 用户关注点字典
         """
         try:
-            # 检查缓存是否存在该会话的用户关注点
+            # Check if cache has user focus for this session / 检查缓存是否存在该会话的用户关注点
             if session_id not in self.user_focus:
-                # 缓存未命中，如果提供数据库会话则从数据库加载
+                # Cache miss, load from database if provided / 缓存未命中，如果提供数据库会话则从数据库加载
                 if db:
-                    logger.info(f"用户关注点缓存未命中，从数据库加载: session_id={session_id}")
-                    # 从数据库查询用户关注点
+                    logger.info(f"User focus cache miss, loading from database: session_id={session_id}")
+                    # Query user focus from database / 从数据库查询用户关注点
                     user_focus = db.query(UserFocus).filter(
                         UserFocus.session_id == session_id
                     ).first()
                     
                     if user_focus:
-                        # 加载到缓存
+                        # Load into cache / 加载到缓存
                         focus_content = user_focus.focus_content
                         
-                        # 确保数据格式正确
+                        # Ensure data format is correct / 确保数据格式正确
                         if isinstance(focus_content, str):
                             try:
                                 focus_content = json.loads(focus_content)
                             except json.JSONDecodeError:
-                                logger.error(f"无法解析用户关注点JSON: {focus_content}")
+                                logger.error(f"Cannot parse user focus JSON: {focus_content}")
                                 focus_content = {}
                         
                         self.user_focus[session_id] = focus_content
                         
-                        # 更新缓存时间戳
+                        # Update cache timestamp / 更新缓存时间戳
                         self._update_cache_timestamp(f"user_focus:{session_id}")
                         
-                        logger.info(f"已从数据库加载用户关注点: session_id={session_id}")
+                        logger.info(f"Loaded user focus from database: session_id={session_id}")
                     else:
-                        # 数据库中也没有记录，返回空字典
-                        logger.info(f"数据库中不存在用户关注点: session_id={session_id}")
+                        # No record in database, return empty dictionary / 数据库中也没有记录，返回空字典
+                        logger.info(f"No user focus in database: session_id={session_id}")
                         return {}
             
-            # 返回缓存中的用户关注点
+            # Return record from cache / 返回缓存中的用户关注点
             return self.user_focus.get(session_id, {})
         except Exception as e:
-            logger.error(f"获取用户关注点异常: {str(e)}")
+            logger.error(f"Error getting user focus: {str(e)}")
             logger.exception(e)
             return {}
     
     def update_user_focus(self, session_id: int, focus_points: Dict[str, List[List[int]]]) -> None:
         """
-        更新用户关注点
-        
+        Update user focus points
+
         Args:
-            session_id: 会话ID
-            focus_points: 用户关注点字典
+            session_id: Session ID
+            focus_points: Dictionary of user focus points
         """
+
         try:
-            # 确保数据是字典
+            # Ensure data is dictionary
             if not isinstance(focus_points, dict):
                 if isinstance(focus_points, str):
                     try:
                         focus_points = json.loads(focus_points)
                     except json.JSONDecodeError:
-                        logger.error(f"无法解析用户关注点JSON字符串: {focus_points}")
+                        logger.error(f"Cannot parse user focus JSON string: {focus_points}")
                         focus_points = {}
                 else:
-                    logger.error(f"用户关注点数据类型不是字典: {type(focus_points)}")
+                    logger.error(f"User focus data type is not dictionary: {type(focus_points)}")
                     focus_points = {}
             
             self.user_focus[session_id] = focus_points
-            logger.info(f"更新用户关注点: session_id={session_id}")
+            logger.info(f"Updated user focus: session_id={session_id}")
             
-            # 更新缓存时间戳
+            # Update cache timestamp
             self._update_cache_timestamp(f"user_focus:{session_id}")
         except Exception as e:
-            logger.error(f"更新用户关注点异常: {str(e)}")
+            logger.error(f"Error updating user focus: {str(e)}")
             logger.exception(e)
     
     def set_agent_result(self, session_id: int, message_id: int, agent_name: str, result: Any) -> None:
         """
-        存储Agent处理结果
-        
+        Store Agent processing results
+
         Args:
-            session_id: 会话ID
-            message_id: 消息ID
-            agent_name: Agent名称
-            result: 处理结果
+            session_id: Session ID
+            message_id: Message ID
+            agent_name: Agent name
+            result: Processing result
         """
         try:
             if session_id not in self.agent_results:
@@ -276,52 +280,52 @@ class SharedCache:
             
             self.agent_results[session_id][message_id][agent_name] = result
             
-            # 更新缓存时间戳
+            # Update cache timestamp
             self._update_cache_timestamp(f"agent_result:{session_id}:{message_id}:{agent_name}")
         except Exception as e:
-            logger.error(f"设置Agent结果异常: {str(e)}")
+            logger.error(f"Error setting agent result: {str(e)}")
     
     def get_agent_result(self, session_id: int, message_id: int, agent_name: str) -> Optional[Any]:
         """
-        获取Agent处理结果
-        
+        Get Agent processing result
+
         Args:
-            session_id: 会话ID
-            message_id: 消息ID
-            agent_name: Agent名称
-            
+            session_id: Unique session identifier
+            message_id: Unique message identifier
+            agent_name: Name of the agent
+
         Returns:
-            处理结果，若不存在则返回None
+            The processing result, or None if no result exists
         """
         try:
             return self.agent_results.get(session_id, {}).get(message_id, {}).get(agent_name)
         except Exception as e:
-            logger.error(f"获取Agent结果异常: {str(e)}")
+            logger.error(f"Error getting agent result: {str(e)}")
             return None
     
     def get_all_agent_results(self, session_id: int, message_id: int) -> Dict[str, Any]:
         """
-        获取指定消息的所有Agent处理结果
-        
+        Get all Agent processing results for a specified message
+
         Args:
-            session_id: 会话ID
-            message_id: 消息ID
-            
+            session_id: Session ID 
+            message_id: Message ID
+
         Returns:
-            所有Agent处理结果的字典
+            Dictionary containing all Agent processing results
         """
         try:
             return self.agent_results.get(session_id, {}).get(message_id, {})
         except Exception as e:
-            logger.error(f"获取所有Agent结果异常: {str(e)}")
+            logger.error(f"Error getting all agent results: {str(e)}")
             return {}
     
     def clear_session_data(self, session_id: int) -> None:
         """
-        清除指定会话的所有数据
-        
+        Clear all data associated with a session
+
         Args:
-            session_id: 会话ID
+            session_id: ID of the session to clear
         """
         try:
             if session_id in self.chat_histories:
@@ -336,7 +340,7 @@ class SharedCache:
             if session_id in self.user_focus:
                 del self.user_focus[session_id]
                 
-            # 清除相关缓存时间戳
+            # Clear related cache timestamps
             keys_to_remove = [k for k in self.cache_timestamps if k.startswith(f"chat_history:{session_id}") or 
                               k.startswith(f"medical_record:{session_id}") or 
                               k.startswith(f"agent_result:{session_id}") or
@@ -345,13 +349,13 @@ class SharedCache:
                 if key in self.cache_timestamps:
                     del self.cache_timestamps[key]
         except Exception as e:
-            logger.error(f"清除会话数据异常: {str(e)}")
+            logger.error(f"Error clearing session data: {str(e)}")
     
     def _update_cache_timestamp(self, cache_key: str) -> None:
         """
-        更新缓存时间戳
-        
+        Remove all session data
+
         Args:
-            cache_key: 缓存键
+            session_id: Target session ID
         """
         self.cache_timestamps[cache_key] = time.time() 

@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // 例如：新用户注册成功 或 老用户欢迎回来
       setUser(response);
     } catch (error) {
-      setError('登录失败，请稍后重试');
+      setError('Login failed, please try again later');
       console.error(error);
     } finally {
       setIsLoading(false);
